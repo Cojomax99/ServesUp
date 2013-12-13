@@ -1,5 +1,6 @@
 package net.cojo.servesup.entities.render;
 
+import net.cojo.servesup.ModUtil;
 import net.cojo.servesup.entities.model.ModelVolleyball;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
@@ -22,7 +23,7 @@ public class RenderVolleyball extends Render {
 
 	@Override
 	protected ResourceLocation getEntityTexture(Entity entity) {
-		return null;
+		return ModUtil.bindTextureEntity("volleyball");
 	}
 
 }
