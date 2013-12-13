@@ -1,12 +1,17 @@
 package net.cojo.servesup.entities.render;
 
+import net.cojo.servesup.entities.model.ModelVolleyball;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 
 public class RenderVolleyball extends Render {
 
-	public RenderVolleyball() {
+	/** Volleyball model */
+	public ModelVolleyball model;
+	
+	public RenderVolleyball(ModelVolleyball model) {
+		this.model = model;
 	}
 
 	@Override
