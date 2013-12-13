@@ -20,7 +20,7 @@ public class RenderVolleyball extends Render {
 	public void doRender(Entity entity, double d0, double d1, double d2,
 			float f, float f1) {
 		EntityVolleyball vball = (EntityVolleyball)entity;
-		this.bindEntityTexture(vball);
+		ModUtil.bindTextureEntity("volleyball");
 		this.model.render(vball, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
 	}
 
