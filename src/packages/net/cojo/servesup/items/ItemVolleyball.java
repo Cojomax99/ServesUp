@@ -45,7 +45,9 @@ public class ItemVolleyball extends Item {
         if (!par2World.isRemote)
         {
         	System.out.println("huehrauewrahwer");
-            par2World.spawnEntityInWorld(new EntityVolleyball(par2World, par3EntityPlayer));
+        	EntityVolleyball ball = new EntityVolleyball(par2World, par3EntityPlayer);
+        	ball.setLocationAndAngles(par3EntityPlayer.posX, par3EntityPlayer.posY, par3EntityPlayer.posZ, 0, 0);
+            par2World.spawnEntityInWorld(ball);
         }
 
         return par1ItemStack;

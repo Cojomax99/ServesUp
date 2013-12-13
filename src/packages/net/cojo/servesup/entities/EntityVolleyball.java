@@ -26,6 +26,11 @@ IEntityAdditionalSpawnData, IProjectile {
 		this.setSize(0.25F, 0.25F);
 		this.hitter = player;
 	}
+	
+	public EntityVolleyball(World world) {
+		super(world);
+		this.setSize(0.25F, 0.25F);
+	}
 
 	/**
 	 * Set the player who most previously hit the ball
