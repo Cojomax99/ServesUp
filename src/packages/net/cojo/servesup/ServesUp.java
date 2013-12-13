@@ -7,6 +7,7 @@ import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -23,6 +24,10 @@ public class ServesUp {
 	
 	@Instance(ModInfo.MODID)
     public static ServesUp instance;
+	
+	/** Used for client-side stuff on servers, etc */
+    @SidedProxy(clientSide = "net.cojo.servesup.ClientProxy", serverSide = "net.cojo.servesup.CommonProxy")
+	public static CommonProxy proxy;
 	
 	@EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -48,7 +53,7 @@ public class ServesUp {
         //proxy.registerBlockRenderIds();
 
         //register renders for entities
-    //    proxy.initRenderRegistry();
+        proxy.initRenderRegistry();
 
         //register renders for tile entities
   //      proxy.registerTESRs();

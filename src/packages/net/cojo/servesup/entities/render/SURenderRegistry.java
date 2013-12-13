@@ -8,7 +8,7 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 
 public class SURenderRegistry {
 
-	public SURenderRegistry() {
+	public static void init() {
 		addMapping(EntityVolleyball.class, new RenderVolleyball(new ModelVolleyball()));
 	}
 	

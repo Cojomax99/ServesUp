@@ -21,9 +21,10 @@ IEntityAdditionalSpawnData, IProjectile {
 	/** Name of the player who hit the volleyball */
 	public String hitterName;
 
-	public EntityVolleyball(World par1World) {
+	public EntityVolleyball(World par1World, EntityLivingBase player) {
 		super(par1World);
 		this.setSize(0.25F, 0.25F);
+		this.hitter = player;
 	}
 
 	/**
