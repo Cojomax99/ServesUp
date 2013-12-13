@@ -1,8 +1,8 @@
-package src.packages.net.cojo.servesup.items;
+package net.cojo.servesup.items;
 
+import net.cojo.servesup.ModInfo;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.item.Item;
-import src.packages.net.cojo.servesup.ModInfo;
 
 public class ItemVolleyball extends Item {
 

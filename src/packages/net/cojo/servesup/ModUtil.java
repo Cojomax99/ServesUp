@@ -1,4 +1,4 @@
-package src.packages.net.cojo.servesup;
+package net.cojo.servesup;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;

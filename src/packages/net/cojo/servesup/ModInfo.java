@@ -1,4 +1,4 @@
-package src.packages.net.cojo.servesup;
+package net.cojo.servesup;
 
 /**
  * Class to hold constant names and values pertaining to the mod
