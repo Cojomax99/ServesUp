@@ -1,4 +1,4 @@
-package net.cojo.servesup.blocks;
+package src.packages.net.cojo.servesup.blocks;
 
 public class SUBlocks {
 	

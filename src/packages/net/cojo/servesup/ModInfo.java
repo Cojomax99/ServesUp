@@ -1,4 +1,4 @@
-package net.cojo.servesup;
+package src.packages.net.cojo.servesup;
 
 /**
  * Class to hold constant names and values pertaining to the mod
@@ -17,4 +17,6 @@ public class ModInfo {
 	
 	/** Location of the icons folder */
 	public static final String ICONLOCATION = MODID + ":";
+	
+	public static final String TEXTURE_ITEM_LOC = "/assets/" + MODID + "/textures/items/";
 }

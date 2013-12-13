@@ -1,4 +1,4 @@
-package net.cojo.servesup.entities.model;
+package src.packages.net.cojo.servesup.entities.model;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;

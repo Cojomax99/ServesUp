@@ -1,7 +1,7 @@
-package net.cojo.servesup.entities;
+package src.packages.net.cojo.servesup.entities;
 
-import net.cojo.servesup.ModInfo;
-import net.cojo.servesup.ServesUp;
+import src.packages.net.cojo.servesup.ModInfo;
+import src.packages.net.cojo.servesup.ServesUp;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 

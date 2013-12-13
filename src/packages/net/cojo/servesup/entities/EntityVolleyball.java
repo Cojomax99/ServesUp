@@ -1,4 +1,4 @@
-package net.cojo.servesup.entities;
+package src.packages.net.cojo.servesup.entities;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;

@@ -1,10 +1,10 @@
-package net.cojo.servesup.entities.render;
+package src.packages.net.cojo.servesup.entities.render;
 
-import net.cojo.servesup.ModUtil;
-import net.cojo.servesup.entities.model.ModelVolleyball;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+import src.packages.net.cojo.servesup.ModUtil;
+import src.packages.net.cojo.servesup.entities.model.ModelVolleyball;
 
 public class RenderVolleyball extends Render {
 

@@ -1,8 +1,9 @@
-package net.cojo.servesup;
-import net.cojo.servesup.blocks.SUBlocks;
-import net.cojo.servesup.entities.SUEntityRegistry;
-import net.cojo.servesup.items.SUItems;
+package src.packages.net.cojo.servesup;
+
 import net.minecraftforge.common.MinecraftForge;
+import src.packages.net.cojo.servesup.blocks.SUBlocks;
+import src.packages.net.cojo.servesup.entities.SUEntityRegistry;
+import src.packages.net.cojo.servesup.items.SUItems;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
