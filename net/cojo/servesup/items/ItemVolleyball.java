@@ -42,11 +42,9 @@ public class ItemVolleyball extends Item {
 
         par2World.playSoundAtEntity(par3EntityPlayer, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
-        if (!par2World.isRemote)
-        {
-        	System.out.println("huehrauewrahwer");
+        if (!par2World.isRemote) {
         	EntityVolleyball ball = new EntityVolleyball(par2World, par3EntityPlayer);
-        	ball.setLocationAndAngles(par3EntityPlayer.posX, par3EntityPlayer.posY, par3EntityPlayer.posZ, 0, 0);
+        	ball.setLocationAndAngles(par3EntityPlayer.posX, par3EntityPlayer.posY + 10, par3EntityPlayer.posZ, 0, 0);
             par2World.spawnEntityInWorld(ball);
         }
 
