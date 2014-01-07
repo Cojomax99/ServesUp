@@ -1,5 +1,7 @@
 package net.cojo.servesup.entities.render;
 
+import org.lwjgl.opengl.GL11;
+
 import net.cojo.servesup.ModUtil;
 import net.cojo.servesup.entities.EntityVolleyball;
 import net.cojo.servesup.entities.model.ModelVolleyball;
@@ -20,8 +22,14 @@ public class RenderVolleyball extends Render {
 	public void doRender(Entity entity, double d0, double d1, double d2,
 			float f, float f1) {
 		EntityVolleyball vball = (EntityVolleyball)entity;
+		
+		GL11.glPushMatrix();
+		
+		GL11.glTranslatef((float) d0, (float) d1 + .3125F, (float) d2);
 		ModUtil.bindTextureEntity("volleyball");
-		this.model.render(vball, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+		this.model.render(vball, 0.0F, 1.0F, 0.1F, 0.0F, 0.0F, 0.0625F);
+		
+		GL11.glPopMatrix();
 	}
 
 	@Override
