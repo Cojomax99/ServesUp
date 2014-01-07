@@ -1,9 +1,9 @@
-package src.packages.net.cojo.servesup.entities.render;
+package net.cojo.servesup.entities.render;
 
+import net.cojo.servesup.entities.EntityVolleyball;
+import net.cojo.servesup.entities.model.ModelVolleyball;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
-import src.packages.net.cojo.servesup.entities.EntityVolleyball;
-import src.packages.net.cojo.servesup.entities.model.ModelVolleyball;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 
 public class SURenderRegistry {

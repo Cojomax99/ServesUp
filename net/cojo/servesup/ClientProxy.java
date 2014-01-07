@@ -1,6 +1,6 @@
-package src.packages.net.cojo.servesup;
+package net.cojo.servesup;
 
-import src.packages.net.cojo.servesup.entities.render.SURenderRegistry;
+import net.cojo.servesup.entities.render.SURenderRegistry;
 
 public class ClientProxy extends CommonProxy {
 	/**

@@ -1,4 +1,4 @@
-package src.packages.net.cojo.servesup.entities;
+package net.cojo.servesup.entities;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;

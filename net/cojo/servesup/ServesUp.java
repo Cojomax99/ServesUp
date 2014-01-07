@@ -1,9 +1,9 @@
-package src.packages.net.cojo.servesup;
+package net.cojo.servesup;
 
+import net.cojo.servesup.blocks.SUBlocks;
+import net.cojo.servesup.entities.SUEntityRegistry;
+import net.cojo.servesup.items.SUItems;
 import net.minecraftforge.common.MinecraftForge;
-import src.packages.net.cojo.servesup.blocks.SUBlocks;
-import src.packages.net.cojo.servesup.entities.SUEntityRegistry;
-import src.packages.net.cojo.servesup.items.SUItems;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -26,7 +26,7 @@ public class ServesUp {
     public static ServesUp instance;
 	
 	/** Used for client-side stuff on servers, etc */
-    @SidedProxy(clientSide = "src.packages.net.cojo.servesup.ClientProxy", serverSide = "src.packages.net.cojo.servesup.CommonProxy")
+    @SidedProxy(clientSide = "net.cojo.servesup.ClientProxy", serverSide = "net.cojo.servesup.CommonProxy")
 	public static CommonProxy proxy;
 	
 	@EventHandler

@@ -1,4 +1,4 @@
-package src.packages.net.cojo.servesup.items;
+package net.cojo.servesup.items;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
