@@ -1,12 +1,12 @@
-package net.cojo.servesup.items;
+package src.packages.net.cojo.servesup.items;
 
-import net.cojo.servesup.ModInfo;
-import net.cojo.servesup.entities.EntityVolleyball;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import src.packages.net.cojo.servesup.ModInfo;
+import src.packages.net.cojo.servesup.entities.EntityVolleyball;
 
 public class ItemVolleyball extends Item {
 
