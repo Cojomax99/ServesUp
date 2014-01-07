@@ -26,7 +26,7 @@ public class ServesUp {
     public static ServesUp instance;
 	
 	/** Used for client-side stuff on servers, etc */
-    @SidedProxy(clientSide = "net.cojo.servesup.ClientProxy", serverSide = "net.cojo.servesup.CommonProxy")
+    @SidedProxy(clientSide = "src.packages.net.cojo.servesup.ClientProxy", serverSide = "src.packages.net.cojo.servesup.CommonProxy")
 	public static CommonProxy proxy;
 	
 	@EventHandler
