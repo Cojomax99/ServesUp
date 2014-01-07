@@ -1,5 +1,6 @@
 package net.cojo.servesup.court;
 
+import net.cojo.servesup.blocks.SUBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.Vec3;
@@ -21,6 +22,68 @@ public class CourtBuilder {
 	public static void buildCourt(World world, int x, int y, int z, int direction) {
 		CourtData data = buildBorder(world, x, y, z, direction);
 		fillCourt(world, data);
+		placeExtraneous(world, x, y, z, direction);
+	}
+	
+	/**
+	 * Place the net and net posts
+	 * @param world World instance
+	 * @param x x coord of the court block
+	 * @param y y coord of the court block
+	 * @param z z coord of the court block
+	 * @param direction Orientation of the court
+	 */
+	private static void placeExtraneous(World world, int x, int y, int z, int direction) {
+		switch (direction) {
+		case 0:
+			place(world, x, y + 1, z - 1, Block.fence);
+			place(world, x, y + 2, z - 1, Block.fence);
+			
+			place(world, x, y + 1, z - 1 - INNER_SIZE - 1, Block.fence);
+			place(world, x, y + 2, z - 1 - INNER_SIZE - 1, Block.fence);
+			
+			for (int i = z - INNER_SIZE - 1; i < z - 1; i++) {
+				place(world, x, y + 2, i, SUBlocks.net);
+			}
+			
+			break;
+		case 1:
+			place(world, x, y + 1, z + 1, Block.fence);
+			place(world, x, y + 2, z + 1, Block.fence);
+			
+			place(world, x, y + 1, z + 1 + INNER_SIZE + 1, Block.fence);
+			place(world, x, y + 2, z + 1 + INNER_SIZE + 1, Block.fence);
+			
+			for (int i = z + 2; i < z + INNER_SIZE + 2; i++) {
+				place(world, x, y + 2, i, SUBlocks.net);
+			}
+			
+			break;
+		case 2:
+			place(world, x - 1, y + 1, z, Block.fence);
+			place(world, x - 1, y + 2, z, Block.fence);
+			
+			place(world, x - 1 - INNER_SIZE - 1, y + 1, z, Block.fence);
+			place(world, x - 1 - INNER_SIZE - 1, y + 2, z, Block.fence);
+			
+			for (int i = x - INNER_SIZE - 1; i < x - 1; i++) {
+				place(world, i, y + 2, z, SUBlocks.net);
+			}
+			
+			break;
+		case 3:
+			place(world, x + 1, y + 1, z, Block.fence);
+			place(world, x + 1, y + 2, z, Block.fence);
+			
+			place(world, x + 1 + INNER_SIZE + 1, y + 1, z, Block.fence);
+			place(world, x + 1 + INNER_SIZE + 1, y + 2, z, Block.fence);
+			
+			for (int i = x + 2; i < x + INNER_SIZE + 2; i++) {
+				place(world, i, y + 2, z, SUBlocks.net);
+			}
+			
+			break;
+		}
 	}
 	
 	/**
@@ -30,14 +93,13 @@ public class CourtBuilder {
 	 */
 	private static void fillCourt(World world, CourtData data) {
 		for (int i = data.minX + 1; i < data.maxX; i++) {
-			placeCourt(world, i, data.y, data.minZ);
-			placeCourt(world, i, data.y, data.maxZ);
+			for (int j = data.minZ + 1; j < data.maxZ; j++) {
+				placeCourt(world, i, data.y, j);
+			//	placeCourt(world, i, data.y, j);
+			}
 		}
 		
-		for (int i = data.minZ + 1; i < data.maxZ; i++) {
-			placeCourt(world, data.minX, data.y, i);
-			placeCourt(world, data.maxZ, data.y, i);
-		}
+		System.out.println(data.minX + " " + data.maxX + " " + data.minZ + " " + data.maxZ);
 	}
 
 	/**

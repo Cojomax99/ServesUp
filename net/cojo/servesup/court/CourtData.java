@@ -24,7 +24,7 @@ public class CourtData {
 	
 	public CourtData(int minX, int maxX, int y, int minZ, int maxZ) {
 		this.minX = minX;
-		this.maxZ = maxZ;
+		this.maxX = maxX;
 		this.y = y;
 		this.minZ = minZ;
 		this.maxZ = maxZ;
