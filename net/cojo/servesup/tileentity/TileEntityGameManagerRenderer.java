@@ -19,16 +19,21 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 		TileEntityGameManager court = (TileEntityGameManager)tileentity;
 
 		// No point rendering the lines if the court isn't there yet!
-		if (true || court.isCourtBuilt()) {
+		if (court.isCourtBuilt()) {
 			AxisAlignedBB bounds = court.getCourtRenderBounds();
 			if (bounds != null) {
 				GL11.glPushMatrix();
 				GL11.glTranslated(-court.xCoord + d0, -court.yCoord + d1, -court.zCoord + d2);
+				
 				// Draw outer border
 				drawOutlinedBoundingBox(bounds, 10F);
 				
 				// Draw middle line
 				drawLine(court.getCenterLineBounds(), 10F);
+				
+				// Draw front zone lines
+				drawLine(court.getFrontZoneLineBounds()[0], 10F);
+				drawLine(court.getFrontZoneLineBounds()[1], 10F);
 				
 				GL11.glTranslated(court.xCoord + d0, court.yCoord + d1, court.zCoord + d2);
 				GL11.glPopMatrix();
