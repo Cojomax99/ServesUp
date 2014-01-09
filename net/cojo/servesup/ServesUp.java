@@ -56,7 +56,7 @@ public class ServesUp {
         proxy.initRenderRegistry();
 
         //register renders for tile entities
-  //      proxy.registerTESRs();
+        proxy.registerTESRs();
 
         //register block render handlers
    //     proxy.registerBlockRenderHandlers();

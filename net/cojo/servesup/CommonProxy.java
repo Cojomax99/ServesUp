@@ -5,6 +5,13 @@ import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class CommonProxy implements IGuiHandler {
+	
+	/**
+	 * Register all tile entity special renderers
+	 */
+	public void registerTESRs() {
+		
+	}
 
 	/**
 	 * Registers all needed renders
