@@ -7,6 +7,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 public class BlockGameManager extends BlockContainer {
@@ -32,13 +33,16 @@ public class BlockGameManager extends BlockContainer {
     /**
      * Called upon block activation (right click on the block.)
      */
+	@Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
         if (world.isRemote)
         	return true;
     	
     	TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);
         
-        CourtBuilder.buildCourt(world, x, y, z, manager.getOrientation());
+        AxisAlignedBB aabb = CourtBuilder.buildCourt(world, x, y, z, manager.getOrientation());
+        
+        manager.setCourtData(aabb);
     	
     	return false;
     }
@@ -46,6 +50,7 @@ public class BlockGameManager extends BlockContainer {
     /**
      * Called when the block is clicked by a player. Args: x, y, z, entityPlayer
      */
+	@Override
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
     	if (!world.isRemote) {
     		TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);

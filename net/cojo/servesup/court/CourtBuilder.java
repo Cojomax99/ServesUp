@@ -2,6 +2,7 @@ package net.cojo.servesup.court;
 
 import net.cojo.servesup.blocks.SUBlocks;
 import net.minecraft.block.Block;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -18,11 +19,14 @@ public class CourtBuilder {
 	 * @param y y coord of the court block
 	 * @param z z coord of the court block
 	 * @param direction Cardinal direction to build the court in
+	 * @return an AxisAlignedBB of the court bounds
 	 */
-	public static void buildCourt(World world, int x, int y, int z, int direction) {
+	public static AxisAlignedBB buildCourt(World world, int x, int y, int z, int direction) {
 		CourtData data = buildBorder(world, x, y, z, direction);
 		fillCourt(world, data);
 		placeExtraneous(world, x, y, z, direction);
+		
+		return AxisAlignedBB.getAABBPool().getAABB(data.minX, y, data.minZ, data.maxX, y, data.maxZ);
 	}
 
 	/**

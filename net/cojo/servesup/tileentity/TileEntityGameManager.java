@@ -1,5 +1,6 @@
 package net.cojo.servesup.tileentity;
 
+import net.cojo.servesup.court.CourtBuilder;
 import net.cojo.servesup.court.CourtData;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
@@ -7,6 +8,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -22,10 +24,47 @@ public class TileEntityGameManager extends TileEntity {
 	/** Has the court been built yet? */
 	public boolean isCourtBuilt;
 	
-	public int minX, minZ, maxX, maxZ;
+	/** Number of blocks away from the net the front zone is located */
+	private static final int FRONT_ZONE_OFFSET = 4;
+	
+	/** Height offset for rendering */
+	private static final double HEIGHT_OFFSET = 1.01;
+	
+	public int minX = Integer.MIN_VALUE, minZ = Integer.MIN_VALUE, maxX = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
 	
 	public TileEntityGameManager() {
 		
+	}
+	
+	/**
+	 * @return Gets an AABB for the center line for rendering (slightly adjusted min vals)
+	 */
+	public AxisAlignedBB getCenterLineBounds() {
+		if (minX == Integer.MIN_VALUE)
+			return null;
+		
+		double midX = (maxX + minX) / 2 + 0.5D;
+		double midZ = (maxZ + minZ) / 2 + 0.5D;
+		
+		if (orientation > 1)
+			return AxisAlignedBB.getAABBPool().getAABB(minX + 1, y(), midZ, maxX, y(), midZ);
+		else
+			return AxisAlignedBB.getAABBPool().getAABB(midX, y(), minZ + 1, midX, y(), maxZ);
+	}
+	
+	/**
+	 * @return Gets an AABB for the entire court for rendering (slightly adjusted min vals)
+	 */
+	public AxisAlignedBB getCourtRenderBounds() {		
+		return minX > Integer.MIN_VALUE ? AxisAlignedBB.getAABBPool().getAABB(minX + 1, y(), minZ + 1, maxX, y(), maxZ) : null;
+	}
+	
+	/**
+	 * Simplification method for getting the height to render the lines at
+	 * @return
+	 */
+	private double y() {
+		return yCoord + HEIGHT_OFFSET;
 	}
 	
 	/**
@@ -62,11 +101,11 @@ public class TileEntityGameManager extends TileEntity {
         nbt.setInteger("maxZ", maxZ);
     }
     
-    public void setCourtData(CourtData data) {
-    	this.minX = data.minX;
-    	this.maxX = data.maxX;
-    	this.minZ = data.minZ;
-    	this.maxZ = data.maxZ;
+    public void setCourtData(AxisAlignedBB data) {
+    	this.minX = MathHelper.floor_double(data.minX);
+    	this.maxX = MathHelper.floor_double(data.maxX);
+    	this.minZ = MathHelper.floor_double(data.minZ);
+    	this.maxZ = MathHelper.floor_double(data.maxZ);
     	sync();
     }
     
