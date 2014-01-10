@@ -36,6 +36,17 @@ public class TileEntityGameManager extends TileEntity {
 	/** Has the court been built yet? */
 	public boolean isCourtBuilt;
 	
+	/**
+	 * Current state of the game.<br>
+	 * States:<br>
+	 * <li>0: Built
+	 * <li>1: Started, pre-game
+	 * <li>2: Serve state
+	 * <li>3: Ball in play
+	 * <li>4: Give points stage, set up next turn, go to state 2
+	 */
+	public int gameState;
+	
 	/** List of entity ids of active players */
 	public List<Integer> activeIDs;
 	
@@ -178,6 +189,7 @@ public class TileEntityGameManager extends TileEntity {
 		maxX = nbt.getInteger("maxX");
 		minZ = nbt.getInteger("minZ");
 		maxZ = nbt.getInteger("maxZ");
+		gameState = nbt.getInteger("GameState");
 		
 	//	if (isGameActive)	
 			activeIDs = getList(nbt.getIntArray("ActiveIDs"));
@@ -205,6 +217,7 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setInteger("minZ", minZ);
 		nbt.setInteger("maxZ", maxZ);
 		nbt.setIntArray("ActiveIDs", Ints.toArray(activeIDs));
+		nbt.setInteger("GameState", this.gameState);
 		
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 		
@@ -305,6 +318,10 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	@Override
 	public void updateEntity() {
+		// If the game state is 0 and it can be 1, change it to 1
+		if (this.isCourtBuilt && !this.isGameActive && this.gameState == 0)
+			gameState = 1;		
+		
 		Iterator<Integer> it = activeIDs.iterator();
 		
 		while (it.hasNext()) {
