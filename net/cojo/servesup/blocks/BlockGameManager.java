@@ -21,43 +21,48 @@ public class BlockGameManager extends BlockContainer {
 	public TileEntity createNewTileEntity(World world) {
 		return new TileEntityGameManager();
 	}
-	
-    /**
-     * Called whenever the block is added into the world. Args: world, x, y, z
-     */
+
+	/**
+	 * Called whenever the block is added into the world. Args: world, x, y, z
+	 */
 	@Override
-    public void onBlockAdded(World par1World, int par2, int par3, int par4) {
-        super.onBlockAdded(par1World, par2, par3, par4);   
-    }
-	
-    /**
-     * Called upon block activation (right click on the block.)
-     */
+	public void onBlockAdded(World par1World, int par2, int par3, int par4) {
+		super.onBlockAdded(par1World, par2, par3, par4);   
+	}
+
+	/**
+	 * Called upon block activation (right click on the block.)
+	 */
 	@Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
-        if (world.isRemote)
-        	return true;
-    	
-    	TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);
-        
-        AxisAlignedBB aabb = CourtBuilder.buildCourt(world, x, y, z, manager.getOrientation());
-        
-        manager.setCourtData(aabb);
-    	
-    	return false;
-    }
-    
-    /**
-     * Called when the block is clicked by a player. Args: x, y, z, entityPlayer
-     */
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
+		if (world.isRemote)
+			return true;
+
+		TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);
+
+		if (!manager.isCourtBuilt()) {
+			AxisAlignedBB aabb = CourtBuilder.buildCourt(world, x, y, z, manager.getOrientation());
+
+			manager.setCourtData(aabb);
+		} else {
+			System.out.println("HOIERUIOWE");
+			manager.startGame();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Called when the block is clicked by a player. Args: x, y, z, entityPlayer
+	 */
 	@Override
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
-    	if (!world.isRemote) {
-    		TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);
-    		
-    		manager.rotate();
-    		System.out.println(manager.getOrientation());
-    	}
-    }
+	public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
+		if (!world.isRemote) {
+			TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);
+
+			manager.rotate();
+			System.out.println(manager.getOrientation());
+		}
+	}
 
 }
