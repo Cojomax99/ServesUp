@@ -166,21 +166,14 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 	/**
 	 * Draws the debug or playername text above a living
 	 */
-	private void renderLivingLabel(TileEntityGameManager court, String par2Str, double par3, double par5, double par7, int par9)
-	{
-		//double d3 = par1EntityLivingBase.getDistanceSqToEntity(this.renderManager.livingPlayer);
-
-		if (true)
-		{
+	private void renderLivingLabel(TileEntityGameManager court, String par2Str, double par3, double par5, double par7, int par9) {
+		if (true) {
 			FontRenderer fontrenderer = this.getFontRenderer();
 			float f = 1.6F;
 			float f1 = 0.016666668F * f;
 			GL11.glPushMatrix();
-			//  GL11.glScalef(1.1F, 1.0F, 1.0F);
 			GL11.glTranslatef((float)par3 + 0.0F, (float)par5 + 2.5F, (float)par7);
 			GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-			//      GL11.glRotatef(-this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
-			//       GL11.glRotatef(this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
 			GL11.glScalef(-f1, -f1, f1);
 			GL11.glDisable(GL11.GL_LIGHTING);
 			GL11.glDepthMask(false);
@@ -189,12 +182,6 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			Tessellator tessellator = Tessellator.instance;
 			byte b0 = 0;
-
-			if (par2Str.equals("deadmau5"))
-			{
-				b0 = -10;
-			}
-
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 			tessellator.startDrawingQuads();
 			int j = fontrenderer.getStringWidth(par2Str) / 2;
@@ -212,7 +199,6 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 			GL11.glEnable(GL11.GL_LIGHTING);
 			GL11.glDisable(GL11.GL_BLEND);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			//GL11.glScalef(-1.1F, -1.0F, -1.0F);
 			GL11.glPopMatrix();
 		}
 	}
