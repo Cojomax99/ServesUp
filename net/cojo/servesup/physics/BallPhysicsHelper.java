@@ -6,7 +6,7 @@ import net.minecraft.util.Vec3;
 
 public class BallPhysicsHelper {
 
-	public static void hitEvent(Entity ball, Entity player) {
+	public static void hitEvent(Entity ball, Entity player, boolean isServe) {
 
 		float hitPower = 0.5F;
 
@@ -24,9 +24,13 @@ public class BallPhysicsHelper {
 		vecThrust.yCoord *= hitPower;
 		vecThrust.zCoord *= hitPower;
 
-		ball.motionX = vecThrust.xCoord;
+		// If it is a serve, don't worry about x and z, just make it go straight up first
+		if (!isServe) {
+			ball.motionX = vecThrust.xCoord;
+			ball.motionZ = vecThrust.zCoord;
+		}
+		
 		ball.motionY = vecThrust.yCoord;
-		ball.motionZ = vecThrust.zCoord;
 
 		//more adjustments
 		ball.motionY += 0.3F;

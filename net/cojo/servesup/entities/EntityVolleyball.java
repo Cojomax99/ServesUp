@@ -31,11 +31,15 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 	/** Is this entity in contact with the ground? */
 	public boolean inGround;
+	
+	/** Is this ball on a serve? */
+	public boolean isServe;
 
-	public EntityVolleyball(World par1World, EntityLivingBase player) {
+	public EntityVolleyball(World par1World, EntityLivingBase player, boolean isServe) {
 		super(par1World);
 		this.setSize(0.25F, 0.25F);
 		this.hitter = player;
+		this.isServe = isServe;
 	}
 
 	public EntityVolleyball(World world) {
@@ -103,6 +107,12 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		par5 *= (double)par7;
 		this.motionX = par1;
 		this.motionY = par3;
+		
+		if (isServe)
+			this.motionY = 2;
+		
+		System.out.println("set throwable heading");
+		
 		this.motionZ = par5;
 		float f3 = MathHelper.sqrt_double(par1 * par1 + par5 * par5);
 		this.prevRotationYaw = this.rotationYaw = (float)(Math.atan2(par1, par5) * 180.0D / Math.PI);
@@ -138,7 +148,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		this.lastTickPosY = this.posY;
 		this.lastTickPosZ = this.posZ;
 		super.onUpdate();
-
+		
 		Vec3 vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
 		Vec3 vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 		MovingObjectPosition movingobjectposition = this.worldObj.clip(vec3, vec31);
@@ -173,13 +183,18 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 					if (entity1 instanceof EntityLivingBase) {
 						EntityLivingBase player = (EntityLivingBase)entity1;
+						
+						if (isServe) {
+							BallPhysicsHelper.hitEvent(this, player, isServe);
+							isServe = false;
+						}						
 
 						if (player.swingProgress > 0.2F) {
 							double speed = Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
 
 							if (entity1.getDistanceToEntity(this) < triggerDist) {
 								System.out.println("hit ball!");
-								BallPhysicsHelper.hitEvent(this, player);
+								BallPhysicsHelper.hitEvent(this, player, isServe);
 							}
 						}
 					}

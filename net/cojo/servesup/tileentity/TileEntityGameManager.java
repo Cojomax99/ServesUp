@@ -50,6 +50,12 @@ public class TileEntityGameManager extends TileEntity {
 	/** List of entity ids of active players */
 	public List<Integer> activeIDs;
 	
+	/** List of entity ids of players on team 2 */
+	public List<Integer> team1;
+	
+	/** List of entity ids of players on team 1 */
+	public List<Integer> team2;
+	
 	/** Map of entity id to team number */
 	public Map<Integer, Integer> playerTeamMap;
 
@@ -63,6 +69,8 @@ public class TileEntityGameManager extends TileEntity {
 
 	public TileEntityGameManager() {
 		activeIDs = new ArrayList<Integer>();
+		team1 = new ArrayList<Integer>();
+		team2 = new ArrayList<Integer>();
 		playerTeamMap = new HashMap<Integer, Integer>();
 	}
 	
@@ -70,25 +78,26 @@ public class TileEntityGameManager extends TileEntity {
 	 * Perform all operations required to start the game
 	 */
 	public void startGame() {
-		//List ents = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getCourtActualBounds());
-		List team1 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamOneBounds());
-		List team2 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamTwoBounds());
+		List e_team1 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamOneBounds());
+		List e_team2 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamTwoBounds());
 		
 		int numPreActiveIDs = activeIDs.size();
 		
-		for (Object obj : team1) {
+		for (Object obj : e_team1) {
 			if (obj instanceof Entity) {
-				System.out.println("Adding to team 1");
+				System.out.printf("Adding %d to team 1\n", ((Entity) obj).entityId);
 				activeIDs.add(((Entity) obj).entityId);
+				team1.add(((Entity) obj).entityId);
 				this.playerTeamMap.put(((Entity) obj).entityId, 1);
 			} else
 				throw new IllegalArgumentException("Somehow a non-entity entity ended up on the volleyball court at game start in team 1!");
 		}
 		
-		for (Object obj : team2) {
+		for (Object obj : e_team2) {
 			if (obj instanceof Entity) {
-				System.out.println("Adding to team 2");
+				System.out.printf("Adding %d to team 2\n", ((Entity) obj).entityId);
 				activeIDs.add(((Entity) obj).entityId);
+				team2.add(((Entity) obj).entityId);
 				this.playerTeamMap.put(((Entity) obj).entityId, 2);
 			} else
 				throw new IllegalArgumentException("Somehow a non-entity entity ended up on the volleyball court at game startin team 2!");
@@ -100,6 +109,11 @@ public class TileEntityGameManager extends TileEntity {
 		}
 	}
 	
+	/**
+	 *
+	 * @param entID Entity id
+	 * @return Get the team of a player with a given entity id
+	 */
 	public int getTeam(Integer entID) {
 		return playerTeamMap.get(entID);
 	}
@@ -195,6 +209,9 @@ public class TileEntityGameManager extends TileEntity {
 			activeIDs = getList(nbt.getIntArray("ActiveIDs"));
 	//	else
 	//		activeIDs = new ArrayList<Integer>();
+			
+		team1 = getList(nbt.getIntArray("Team1IDs"));
+		team2 = getList(nbt.getIntArray("Team2IDs"));
 		
 		int count = 0;
 		
@@ -217,6 +234,8 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setInteger("minZ", minZ);
 		nbt.setInteger("maxZ", maxZ);
 		nbt.setIntArray("ActiveIDs", Ints.toArray(activeIDs));
+		nbt.setIntArray("team1IDs", Ints.toArray(team1));
+		nbt.setIntArray("team2IDs", Ints.toArray(team2));
 		nbt.setInteger("GameState", this.gameState);
 		
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
