@@ -28,5 +28,17 @@ public class ModUtil {
     public static ResourceLocation bindTextureEntity(String texName) {
         return bindTextureMod(String.format("entities/%s", texName));
     }
+    
+    /**
+     * Bind resource (specially crafted for gui overlays)
+     * @param texName Texture location (eg chest.png)
+     * @return
+     */
+    public static ResourceLocation bindTextureModGui(String texName) {
+        ResourceLocation res = new ResourceLocation(ModInfo.MODID, String.format("gui/%s.png", texName));
+        Minecraft.getMinecraft().renderEngine.bindTexture(res);
+
+        return res;
+    }
 
 }
