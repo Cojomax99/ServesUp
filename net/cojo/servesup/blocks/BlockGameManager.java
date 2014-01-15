@@ -1,6 +1,7 @@
 package net.cojo.servesup.blocks;
 
 import net.cojo.servesup.court.CourtBuilder;
+import net.cojo.servesup.gui.GuiBuildCourt;
 import net.cojo.servesup.tileentity.TileEntityGameManager;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -9,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import cpw.mods.fml.common.FMLCommonHandler;
 
 public class BlockGameManager extends BlockContainer {
 
@@ -34,7 +36,7 @@ public class BlockGameManager extends BlockContainer {
 	 * Called upon block activation (right click on the block.)
 	 */
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float localVecX, float localVecY, float localVecZ) {
 		if (world.isRemote)
 			return true;
 
@@ -62,6 +64,8 @@ public class BlockGameManager extends BlockContainer {
 
 			manager.rotate();
 			System.out.println(manager.getOrientation());
+			
+			FMLCommonHandler.instance().showGuiScreen(new GuiBuildCourt(manager.getOrientation()));
 		}
 	}
 

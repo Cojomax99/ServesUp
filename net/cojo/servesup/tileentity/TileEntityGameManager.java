@@ -328,6 +328,10 @@ public class TileEntityGameManager extends TileEntity {
 		PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(), worldObj.provider.dimensionId);
 	}
 
+	/**
+	 * 
+	 * @return Get the orientation of the court
+	 */
 	public int getOrientation() {
 		return this.orientation;
 	}

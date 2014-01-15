@@ -35,10 +35,7 @@ public class ModUtil {
      * @return
      */
     public static ResourceLocation bindTextureModGui(String texName) {
-        ResourceLocation res = new ResourceLocation(ModInfo.MODID, String.format("gui/%s.png", texName));
-        Minecraft.getMinecraft().renderEngine.bindTexture(res);
-
-        return res;
+        return bindTextureMod(String.format("gui/%s", texName));
     }
 
 }
