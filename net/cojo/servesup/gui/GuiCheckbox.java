@@ -1,15 +1,21 @@
 package net.cojo.servesup.gui;
 
-import org.lwjgl.opengl.GL11;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.cojo.servesup.ModUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 
+import org.lwjgl.opengl.GL11;
+
 public class GuiCheckbox extends GuiButton {
 
 	/** Is this checkbox checked currently? */
 	boolean checked;
+	
+	/** List of checkboxes to maintain as mutex to this one */
+	List<GuiCheckbox> mutexList;
 
 	public GuiCheckbox(int par1, int par2, int par3) {
 		this(par1, par2, par3, 12, 12);
@@ -17,7 +23,14 @@ public class GuiCheckbox extends GuiButton {
 
 	public GuiCheckbox(int i, int x, int y, int w, int h) {
 		super(i, x, y, w, h, "");
+		mutexList = new ArrayList<GuiCheckbox>();
 		checked = false;
+	}
+	
+	public void addMutex(GuiCheckbox checkbox) {
+		if (mutexList == null)
+			mutexList = new ArrayList<GuiCheckbox>();
+		mutexList.add(checkbox);
 	}
 
 	public int getHoverState(boolean flag) {
@@ -55,6 +68,12 @@ public class GuiCheckbox extends GuiButton {
 	public boolean mousePressed(Minecraft minecraft, int i, int j) {		
 		if (isHovered(i, j)) {
 			checked = !checked;
+		}
+		
+		if (checked) {
+			for (GuiCheckbox checkbox : mutexList) {
+				checkbox.checked = false;
+			}
 		}
 		
 		return enabled && drawButton && isHovered(i, j);
