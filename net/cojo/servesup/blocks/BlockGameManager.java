@@ -1,7 +1,7 @@
 package net.cojo.servesup.blocks;
 
 import net.cojo.servesup.court.CourtBuilder;
-import net.cojo.servesup.gui.GuiBuildCourt;
+import net.cojo.servesup.gui.GuiGameSettings;
 import net.cojo.servesup.tileentity.TileEntityGameManager;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -43,30 +43,16 @@ public class BlockGameManager extends BlockContainer {
 		TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);
 
 		if (!manager.isCourtBuilt()) {
+			manager.setOrientation(side - 2);
 			AxisAlignedBB aabb = CourtBuilder.buildCourt(world, x, y, z, manager.getOrientation());
 
 			manager.setCourtData(aabb);
 		} else {
-			System.out.println("HOIERUIOWE");
+			FMLCommonHandler.instance().showGuiScreen(new GuiGameSettings(side - 2));
 			manager.startGame();
 		}
 
 		return false;
-	}
-
-	/**
-	 * Called when the block is clicked by a player. Args: x, y, z, entityPlayer
-	 */
-	@Override
-	public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
-		if (!world.isRemote) {
-			TileEntityGameManager manager = (TileEntityGameManager)world.getBlockTileEntity(x, y, z);
-
-			manager.rotate();
-			System.out.println(manager.getOrientation());
-			
-			FMLCommonHandler.instance().showGuiScreen(new GuiBuildCourt(manager.getOrientation()));
-		}
 	}
 
 }

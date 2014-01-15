@@ -320,6 +320,15 @@ public class TileEntityGameManager extends TileEntity {
 		orientation = orientation < 3 ? orientation + 1 : 0;
 		sync();		
 	}
+	
+	/**
+	 * Set the orientation of the court to a specified value, and round down to 3 and up to 0 if necessary
+	 * @param val Value of orientation to set for the court
+	 */
+	public void setOrientation(int val) {
+		orientation = val < 0 ? 0 : val > 3 ? 3 : val;
+		sync();
+	}
 
 	/**
 	 * Sync the data so all clients get the same data

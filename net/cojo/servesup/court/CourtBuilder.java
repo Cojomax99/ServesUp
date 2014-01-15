@@ -7,6 +7,15 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+/**
+ * Orientations:
+ * 0: -z
+ * 1: +z
+ * 2: -x
+ * 3: +x
+ * @author Cojo
+ *
+ */
 public class CourtBuilder {
 
 	/** Number of blocks long and wide a side of a court is, excluding border */
