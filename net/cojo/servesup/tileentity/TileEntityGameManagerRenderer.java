@@ -40,10 +40,8 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 				drawOutlinedBoundingBox(court.getCourtActualBounds(), 10F);
 
 				if (!court.activeIDs.isEmpty()) {
-					System.out.println("not empty");
 					Entity e = court.worldObj.getEntityByID(court.activeIDs.get(0));
 					if (e != null) {
-						System.out.println("not null");
 						this.renderLivingLabel(court, "Team " + court.getTeam(e.entityId), court.xCoord, court.yCoord, court.zCoord, 0xff0000);
 					}
 				}
