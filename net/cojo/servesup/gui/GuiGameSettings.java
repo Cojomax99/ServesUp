@@ -34,6 +34,7 @@ public class GuiGameSettings extends GuiScreen {
 	List<Integer> team2;
 
 	GuiPlayerSlot team1Slot;
+	GuiPlayerSlot team2Slot;
 
 	public GuiGameSettings(int orientation, List<Integer> team1, List<Integer> team2) {
 		this.orientation = orientation;
@@ -51,8 +52,11 @@ public class GuiGameSettings extends GuiScreen {
 		Keyboard.enableRepeatEvents(true);
 		addButtons();
 		addTextFields();
-		this.team1Slot = new GuiPlayerSlot(this, 1);
+		this.team1Slot = new GuiPlayerSlot(this, (int)(width / 2), 1);
 		this.team1Slot.registerScrollButtons(7, 8);
+		
+		this.team2Slot = new GuiPlayerSlot(this, (int)(width / 2) + 80, 2);
+		this.team2Slot.registerScrollButtons(17, 8);
 	}
 
 	private void addTextFields() {
@@ -105,6 +109,9 @@ public class GuiGameSettings extends GuiScreen {
 		ScaledResolution sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 
 		this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
+		
+		this.team1Slot.drawScreen(i, j, f);
+		this.team2Slot.drawScreen(i, j, f);
 
 		// Draw border around textbox, then draw textbox
 		this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
@@ -182,44 +189,46 @@ public class GuiGameSettings extends GuiScreen {
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if (button.enabled) {
-			if ((button.id < 2000 || button.id > 2004))
+			if ((button.id < 2000 || button.id > 2004)) {
 				this.team1Slot.actionPerformed(button);
+				this.team2Slot.actionPerformed(button);
+			}
 		}
-	
-}
 
-public Minecraft getMC() {
-	return this.mc;
-}
+	}
 
-public FontRenderer getFR() {
-	return this.fontRenderer;
-}
+	public Minecraft getMC() {
+		return this.mc;
+	}
 
-/**
- * Called from the main game loop to update the screen.
- */
-@Override
-public void updateScreen() {
-	this.customScore.updateCursorCounter();
-	this.tf_team1.updateCursorCounter();
-	this.tf_team2.updateCursorCounter();
-}
+	public FontRenderer getFR() {
+		return this.fontRenderer;
+	}
 
-/**
- * Called when the screen is unloaded. Used to disable keyboard repeat events
- */
-@Override
-public void onGuiClosed() {
-	Keyboard.enableRepeatEvents(false);
-}
+	/**
+	 * Called from the main game loop to update the screen.
+	 */
+	@Override
+	public void updateScreen() {
+		this.customScore.updateCursorCounter();
+		this.tf_team1.updateCursorCounter();
+		this.tf_team2.updateCursorCounter();
+	}
 
-public List<Integer> getTeam1List() {
-	return this.team1;
-}
+	/**
+	 * Called when the screen is unloaded. Used to disable keyboard repeat events
+	 */
+	@Override
+	public void onGuiClosed() {
+		Keyboard.enableRepeatEvents(false);
+	}
 
-public List<Integer> getTeam2List() {
-	return this.team2;
-}
+	public List<Integer> getTeam1List() {
+		return this.team1;
+	}
+
+	public List<Integer> getTeam2List() {
+		return this.team2;
+	}
 
 }
