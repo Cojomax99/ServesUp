@@ -248,6 +248,7 @@ public abstract class GuiCustomSlot
                     if (par1 >= k2 && par1 <= j1 && l1 >= 0 && k1 >= 0 && l1 < k)
                     {
                         boolean flag1 = l1 == this.selectedElement && Minecraft.getSystemTime() - this.lastClicked < 250L;
+                        System.out.println("hieaew" + l1);
                         this.elementClicked(l1, flag1);
                         this.selectedElement = l1;
                         this.lastClicked = Minecraft.getSystemTime();
@@ -336,7 +337,6 @@ public abstract class GuiCustomSlot
         GL11.glDisable(GL11.GL_FOG);
         Tessellator tessellator = Tessellator.instance;
         drawContainerBackground(tessellator);
-        //TODO HERHERHEHR
         j1 = this.width / 2 - 92 - 16;
         k1 = this.top + 4 - (int)this.amountScrolled;
 

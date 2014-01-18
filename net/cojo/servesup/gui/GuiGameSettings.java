@@ -33,9 +33,9 @@ public class GuiGameSettings extends GuiScreen {
 	List<String> team1;
 	List<String> team2;
 
-	GuiPlayerSlot team1Slot;
-	GuiPlayerSlot team2Slot;
-	
+//	GuiPlayerSlot team1Slot;
+//	GuiPlayerSlot team2Slot;
+
 	String selectedName;
 
 	public GuiGameSettings(int orientation, List<String> team1, List<String> team2) {
@@ -43,11 +43,11 @@ public class GuiGameSettings extends GuiScreen {
 		this.team1 = new ArrayList<String>(team1);
 		this.team2 = new ArrayList<String>(team2);
 	}
-	
+
 	public void setSelectedName(String name) {
 		selectedName = new String(name);
 	}
-	
+
 	public String getSelectedName() {
 		return this.selectedName;
 	}
@@ -62,11 +62,11 @@ public class GuiGameSettings extends GuiScreen {
 		Keyboard.enableRepeatEvents(true);
 		addButtons();
 		addTextFields();
-		this.team1Slot = new GuiPlayerSlot(this, (int)(width / 2) - 50, 1);
+	/*	this.team1Slot = new GuiPlayerSlot(this, (int)(width / 2) - 50, 1);
 		this.team1Slot.registerScrollButtons(7, 8);
-		
+
 		this.team2Slot = new GuiPlayerSlot(this, (int)(width / 2) + 50, 2);
-		this.team2Slot.registerScrollButtons(17, 18);
+		this.team2Slot.registerScrollButtons(17, 18);*/
 	}
 
 	private void addTextFields() {
@@ -101,6 +101,8 @@ public class GuiGameSettings extends GuiScreen {
 		this.tf_team1.mouseClicked(par1, par2, par3);
 		this.tf_team2.mouseClicked(par1, par2, par3);
 
+		super.mouseClicked(par1, par2, par3);
+		
 		if (check1.isHovered(par1, par2)) {
 			if (check1.checked)
 				check2.checked = false;
@@ -110,8 +112,32 @@ public class GuiGameSettings extends GuiScreen {
 					check1.checked = false;
 			}
 		}
-
-		super.mouseClicked(par1, par2, par3);
+		
+		if (check1.isHovered(par1, par2)) {
+			check1.checked = true;
+		} else {
+			if (check2.isHovered(par1, par2)) {
+				check2.checked = true;
+			}
+		}
+		
+		if (score1.isHovered(par1, par2)) {
+			if (score1.checked)
+				score2.checked = false;
+		} else {
+			if (score2.isHovered(par1, par2)) {
+				if (score2.checked)
+					score1.checked = false;
+			}
+		}
+		
+		if (score1.isHovered(par1, par2)) {
+			score1.checked = true;
+		} else {
+			if (score2.isHovered(par1, par2)) {
+				score2.checked = true;
+			}
+		}
 	}
 
 	@Override
@@ -119,48 +145,47 @@ public class GuiGameSettings extends GuiScreen {
 		ScaledResolution sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 
 		this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
-		
+
 		try {
-		
-		this.team1Slot.drawScreen(i, j, f);
-		this.team2Slot.drawScreen(i, j, f);
+		//	this.team1Slot.drawScreen(i, j, f);
+		//	this.team2Slot.drawScreen(i, j, f);
 
-		// Draw border around textbox, then draw textbox
-		this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
-		this.drawRect(score2.xPosition + 11, score2.yPosition + 33, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(score2.xPosition + 10, score2.yPosition + 18, score2.xPosition + 11, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(score2.xPosition + 42, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(score2.xPosition + 12, score2.yPosition + 20, score2.xPosition + 42, score2.yPosition + 32, Integer.MIN_VALUE);
+			// Draw border around textbox, then draw textbox
+			this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
+			this.drawRect(score2.xPosition + 11, score2.yPosition + 33, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(score2.xPosition + 10, score2.yPosition + 18, score2.xPosition + 11, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(score2.xPosition + 42, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(score2.xPosition + 12, score2.yPosition + 20, score2.xPosition + 42, score2.yPosition + 32, Integer.MIN_VALUE);
 
-		// Draw border around textbox, then draw textbox
-		this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
-		this.drawRect(score2.xPosition + 11, score2.yPosition + 33, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(score2.xPosition + 10, score2.yPosition + 18, score2.xPosition + 11, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(score2.xPosition + 42, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(40, score2.yPosition + 67, 120, score2.yPosition + 80, Integer.MIN_VALUE);
+			// Draw border around textbox, then draw textbox
+			this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
+			this.drawRect(score2.xPosition + 11, score2.yPosition + 33, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(score2.xPosition + 10, score2.yPosition + 18, score2.xPosition + 11, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(score2.xPosition + 42, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(40, score2.yPosition + 67, 120, score2.yPosition + 80, Integer.MIN_VALUE);
 
-		// Draw border around textbox, then draw textbox
-		this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
-		this.drawRect(score2.xPosition + 11, score2.yPosition + 33, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(score2.xPosition + 10, score2.yPosition + 18, score2.xPosition + 11, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(score2.xPosition + 42, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
-		this.drawRect(width - 120, score2.yPosition + 67, width - 40, score2.yPosition + 80, Integer.MIN_VALUE);
+			// Draw border around textbox, then draw textbox
+			this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
+			this.drawRect(score2.xPosition + 11, score2.yPosition + 33, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(score2.xPosition + 10, score2.yPosition + 18, score2.xPosition + 11, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(score2.xPosition + 42, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 34, 0xffffffff);
+			this.drawRect(width - 120, score2.yPosition + 67, width - 40, score2.yPosition + 80, Integer.MIN_VALUE);
 
-		this.fontRenderer.drawStringWithShadow("Mode", check1.xPosition, check1.yPosition - 12, 0xffffff);
-		this.fontRenderer.drawStringWithShadow("Regulation", check1.xPosition + 20, check1.yPosition + 3, 0xffffff);
-		this.fontRenderer.drawStringWithShadow("Beach Volleyball", check2.xPosition + 20, check2.yPosition + 3, 0xffffff);
-		this.fontRenderer.drawStringWithShadow("Score to play to:", check1.xPosition, check2.yPosition + 35, 0xffffff);
-		this.fontRenderer.drawStringWithShadow("Regulation", score1.xPosition + 20, score1.yPosition + 3, 0xffffff);
-		this.fontRenderer.drawStringWithShadow("Custom:", score2.xPosition + 20, score2.yPosition + 3, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Mode", check1.xPosition, check1.yPosition - 12, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Regulation", check1.xPosition + 20, check1.yPosition + 3, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Beach Volleyball", check2.xPosition + 20, check2.yPosition + 3, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Score to play to:", check1.xPosition, check2.yPosition + 35, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Regulation", score1.xPosition + 20, score1.yPosition + 3, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Custom:", score2.xPosition + 20, score2.yPosition + 3, 0xffffff);
 
-		this.fontRenderer.drawStringWithShadow("Team 1 Name:", 47, score2.yPosition + 50, 0xffffff);
-		this.fontRenderer.drawStringWithShadow("Team 2 Name:", width - 113, score2.yPosition + 50, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Team 1 Name:", 47, score2.yPosition + 50, 0xffffff);
+			this.fontRenderer.drawStringWithShadow("Team 2 Name:", width - 113, score2.yPosition + 50, 0xffffff);
 
-		this.customScore.drawTextBox();
-		this.tf_team1.drawTextBox();
-		this.tf_team2.drawTextBox();
+			this.customScore.drawTextBox();
+			this.tf_team1.drawTextBox();
+			this.tf_team2.drawTextBox();
 		} catch (NullPointerException npe) {
-			
+
 		}
 
 		super.drawScreen(i,j,f);
@@ -198,20 +223,6 @@ public class GuiGameSettings extends GuiScreen {
 		} else {
 			this.mc.displayGuiScreen((GuiScreen)null);
 		}
-	}
-
-	/**
-	 * Fired when a control is clicked. This is the equivalent of ActionListener.actionPerformed(ActionEvent e).
-	 */
-	@Override
-	protected void actionPerformed(GuiButton button) {
-		if (button.enabled) {
-			if ((button.id < 2000 || button.id > 2004)) {
-				this.team1Slot.actionPerformed(button);
-				this.team2Slot.actionPerformed(button);
-			}
-		}
-
 	}
 
 	public Minecraft getMC() {
