@@ -75,9 +75,56 @@ public class TileEntityGameManager extends TileEntity {
 	}
 	
 	/**
+	 * Turn the list of entity ids in team2 to names
+	 * @return A list of names of players on team 2
+	 */
+	public List<String> getTeam1Names() {
+		List<String> names = new ArrayList<String>();
+		
+		Iterator<Integer> it = team1.iterator();
+		
+		while (it.hasNext()) {
+			Integer id = it.next();
+			Entity e = this.worldObj.getEntityByID(id.intValue());
+			try {
+				names.add(e.getEntityName());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		return names;
+	}
+	
+	/**
+	 * Turn the list of entity ids in team1 to names
+	 * @return A list of names of players on team 1
+	 */
+	public List<String> getTeam2Names() {
+		List<String> names = new ArrayList<String>();
+		
+		Iterator<Integer> it = team2.iterator();
+		
+		while (it.hasNext()) {
+			Integer id = it.next();
+			Entity e = this.worldObj.getEntityByID(id.intValue());
+			try {
+				names.add(e.getEntityName());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		return names;
+	}
+	
+	/**
 	 * Perform all operations required to start the game
 	 */
 	public void startGame() {
+		team1.clear();
+		team2.clear();
+		activeIDs.clear();
 		List e_team1 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamOneBounds());
 		List e_team2 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamTwoBounds());
 		

@@ -49,7 +49,7 @@ public class BlockGameManager extends BlockContainer {
 			manager.setCourtData(aabb);
 		} else {
 			manager.startGame();
-			FMLCommonHandler.instance().showGuiScreen(new GuiGameSettings(side - 2, manager.team1, manager.team2));
+			FMLCommonHandler.instance().showGuiScreen(new GuiGameSettings(side - 2, manager.getTeam1Names(), manager.getTeam2Names()));
 		}
 
 		return false;

@@ -30,16 +30,26 @@ public class GuiGameSettings extends GuiScreen {
 	GuiTextField tf_team1;
 	GuiTextField tf_team2;
 
-	List<Integer> team1;
-	List<Integer> team2;
+	List<String> team1;
+	List<String> team2;
 
 	GuiPlayerSlot team1Slot;
 	GuiPlayerSlot team2Slot;
+	
+	String selectedName;
 
-	public GuiGameSettings(int orientation, List<Integer> team1, List<Integer> team2) {
+	public GuiGameSettings(int orientation, List<String> team1, List<String> team2) {
 		this.orientation = orientation;
-		this.team1 = new ArrayList<Integer>(team1);
-		this.team2 = new ArrayList<Integer>(team2);
+		this.team1 = new ArrayList<String>(team1);
+		this.team2 = new ArrayList<String>(team2);
+	}
+	
+	public void setSelectedName(String name) {
+		selectedName = new String(name);
+	}
+	
+	public String getSelectedName() {
+		return this.selectedName;
 	}
 
 	@Override
@@ -52,11 +62,11 @@ public class GuiGameSettings extends GuiScreen {
 		Keyboard.enableRepeatEvents(true);
 		addButtons();
 		addTextFields();
-		this.team1Slot = new GuiPlayerSlot(this, (int)(width / 2), 1);
+		this.team1Slot = new GuiPlayerSlot(this, (int)(width / 2) - 50, 1);
 		this.team1Slot.registerScrollButtons(7, 8);
 		
-		this.team2Slot = new GuiPlayerSlot(this, (int)(width / 2) + 80, 2);
-		this.team2Slot.registerScrollButtons(17, 8);
+		this.team2Slot = new GuiPlayerSlot(this, (int)(width / 2) + 50, 2);
+		this.team2Slot.registerScrollButtons(17, 18);
 	}
 
 	private void addTextFields() {
@@ -110,6 +120,8 @@ public class GuiGameSettings extends GuiScreen {
 
 		this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
 		
+		try {
+		
 		this.team1Slot.drawScreen(i, j, f);
 		this.team2Slot.drawScreen(i, j, f);
 
@@ -147,6 +159,9 @@ public class GuiGameSettings extends GuiScreen {
 		this.customScore.drawTextBox();
 		this.tf_team1.drawTextBox();
 		this.tf_team2.drawTextBox();
+		} catch (NullPointerException npe) {
+			
+		}
 
 		super.drawScreen(i,j,f);
 	}
@@ -156,11 +171,13 @@ public class GuiGameSettings extends GuiScreen {
 
 		buttonList.add(new GuiButton(2000, this.width / 2 - (int)(this.fontRenderer.getStringWidth("Build Court") / 1.7), this.height / 4 + 96 + 40, 70, 20, "Build Court"));
 		check1 = new GuiCheckbox(2001, (int)(width / 24), (int)(height / 8));
+		check1.checked = true;
 		buttonList.add(check1);
 		check2 = new GuiCheckbox(2002, (int)(width / 24), check1.yPosition + 15);
 		buttonList.add(check2);
 
 		score1 = new GuiCheckbox(2003, (int)(width / 24), check2.yPosition + 47);
+		score1.checked = true;
 		buttonList.add(score1);
 		score2 = new GuiCheckbox(2004, (int)(width / 24), score1.yPosition + 15);
 		buttonList.add(score2);
@@ -221,13 +238,15 @@ public class GuiGameSettings extends GuiScreen {
 	@Override
 	public void onGuiClosed() {
 		Keyboard.enableRepeatEvents(false);
+		this.team1.clear();
+		this.team2.clear();
 	}
 
-	public List<Integer> getTeam1List() {
+	public List<String> getTeam1List() {
 		return this.team1;
 	}
 
-	public List<Integer> getTeam2List() {
+	public List<String> getTeam2List() {
 		return this.team2;
 	}
 

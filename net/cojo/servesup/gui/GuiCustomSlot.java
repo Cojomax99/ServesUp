@@ -81,7 +81,7 @@ public abstract class GuiCustomSlot
         this.bottom = par5;
         this.slotHeight = par6;
         this.left = left;
-        this.right = left + 48;
+        this.right = left + 85;
     }
 
     public void func_77207_a(int par1, int par2, int par3, int par4)
@@ -336,6 +336,7 @@ public abstract class GuiCustomSlot
         GL11.glDisable(GL11.GL_FOG);
         Tessellator tessellator = Tessellator.instance;
         drawContainerBackground(tessellator);
+        //TODO HERHERHEHR
         j1 = this.width / 2 - 92 - 16;
         k1 = this.top + 4 - (int)this.amountScrolled;
 
@@ -355,8 +356,8 @@ public abstract class GuiCustomSlot
             {
                 if (this.showSelectionBox && this.isSelected(l1))
                 {
-                    i3 = this.width / 2 - 110;
-                    int j3 = this.width / 2 + 110;
+                    i3 = left;
+                    int j3 = right;
                     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     GL11.glDisable(GL11.GL_TEXTURE_2D);
                     tessellator.startDrawingQuads();
