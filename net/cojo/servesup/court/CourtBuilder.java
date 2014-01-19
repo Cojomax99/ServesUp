@@ -19,7 +19,10 @@ import net.minecraft.world.World;
 public class CourtBuilder {
 
 	/** Number of blocks long and wide a side of a court is, excluding border */
-	private static final int INNER_SIZE = 11;
+	public static final int WIDTH = 11;
+	
+	/** Number of blocks long the entire court is, excluding border */
+	public static final int LENGTH = 23;
 
 	/**
 	 * The method that performs the actual building of the court, given a direction to build it in
@@ -52,10 +55,10 @@ public class CourtBuilder {
 			place(world, x, y + 1, z - 1, Block.fence);
 			place(world, x, y + 2, z - 1, Block.fence);
 
-			place(world, x, y + 1, z - 1 - INNER_SIZE - 1, Block.fence);
-			place(world, x, y + 2, z - 1 - INNER_SIZE - 1, Block.fence);
+			place(world, x, y + 1, z - 1 - WIDTH - 1, Block.fence);
+			place(world, x, y + 2, z - 1 - WIDTH - 1, Block.fence);
 
-			for (int i = z - INNER_SIZE - 1; i < z - 1; i++) {
+			for (int i = z - WIDTH - 1; i < z - 1; i++) {
 				place(world, x, y + 2, i, SUBlocks.net);
 			}
 
@@ -64,10 +67,10 @@ public class CourtBuilder {
 			place(world, x, y + 1, z + 1, Block.fence);
 			place(world, x, y + 2, z + 1, Block.fence);
 
-			place(world, x, y + 1, z + 1 + INNER_SIZE + 1, Block.fence);
-			place(world, x, y + 2, z + 1 + INNER_SIZE + 1, Block.fence);
+			place(world, x, y + 1, z + 1 + WIDTH + 1, Block.fence);
+			place(world, x, y + 2, z + 1 + WIDTH + 1, Block.fence);
 
-			for (int i = z + 2; i < z + INNER_SIZE + 2; i++) {
+			for (int i = z + 2; i < z + WIDTH + 2; i++) {
 				place(world, x, y + 2, i, SUBlocks.net);
 			}
 
@@ -76,10 +79,10 @@ public class CourtBuilder {
 			place(world, x - 1, y + 1, z, Block.fence);
 			place(world, x - 1, y + 2, z, Block.fence);
 
-			place(world, x - 1 - INNER_SIZE - 1, y + 1, z, Block.fence);
-			place(world, x - 1 - INNER_SIZE - 1, y + 2, z, Block.fence);
+			place(world, x - 1 - WIDTH - 1, y + 1, z, Block.fence);
+			place(world, x - 1 - WIDTH - 1, y + 2, z, Block.fence);
 
-			for (int i = x - INNER_SIZE - 1; i < x - 1; i++) {
+			for (int i = x - WIDTH - 1; i < x - 1; i++) {
 				place(world, i, y + 2, z, SUBlocks.net);
 			}
 
@@ -88,10 +91,10 @@ public class CourtBuilder {
 			place(world, x + 1, y + 1, z, Block.fence);
 			place(world, x + 1, y + 2, z, Block.fence);
 
-			place(world, x + 1 + INNER_SIZE + 1, y + 1, z, Block.fence);
-			place(world, x + 1 + INNER_SIZE + 1, y + 2, z, Block.fence);
+			place(world, x + 1 + WIDTH + 1, y + 1, z, Block.fence);
+			place(world, x + 1 + WIDTH + 1, y + 2, z, Block.fence);
 
-			for (int i = x + 2; i < x + INNER_SIZE + 2; i++) {
+			for (int i = x + 2; i < x + WIDTH + 2; i++) {
 				place(world, i, y + 2, z, SUBlocks.net);
 			}
 
@@ -132,28 +135,28 @@ public class CourtBuilder {
 		// Determine the min/max vals based on direction
 		switch (direction) {
 		case 0:
-			minX = x - INNER_SIZE - 1;
-			maxX = x + INNER_SIZE + 1;
-			minZ = z - 1 - INNER_SIZE - 1;
+			minX = x - WIDTH - 1;
+			maxX = x + WIDTH + 1;
+			minZ = z - 1 - WIDTH - 1;
 			maxZ = z - 1;
 			break;
 		case 1:
-			minX = x - INNER_SIZE - 1;
-			maxX = x + INNER_SIZE + 1;
+			minX = x - WIDTH - 1;
+			maxX = x + WIDTH + 1;
 			minZ = z + 1;
-			maxZ = z + 1 + INNER_SIZE + 1;
+			maxZ = z + 1 + WIDTH + 1;
 			break;
 		case 2:
-			minX = x - 1 - INNER_SIZE - 1;
+			minX = x - 1 - WIDTH - 1;
 			maxX = x - 1;
-			minZ = z - INNER_SIZE - 1;
-			maxZ = z + INNER_SIZE + 1;
+			minZ = z - WIDTH - 1;
+			maxZ = z + WIDTH + 1;
 			break;
 		case 3:
 			minX = x + 1;
-			maxX = x + 1 + INNER_SIZE + 1;
-			minZ = z - INNER_SIZE - 1;
-			maxZ = z + INNER_SIZE + 1;
+			maxX = x + 1 + WIDTH + 1;
+			minZ = z - WIDTH - 1;
+			maxZ = z + WIDTH + 1;
 			break;
 		}
 		

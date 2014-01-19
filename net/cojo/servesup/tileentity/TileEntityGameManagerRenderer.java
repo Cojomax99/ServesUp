@@ -1,11 +1,13 @@
 package net.cojo.servesup.tileentity;
 
+import net.cojo.servesup.court.Overlays;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 
 import org.lwjgl.opengl.GL11;
 
@@ -22,6 +24,7 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 		// No point rendering the lines if the court isn't there yet!
 		if (court.isCourtBuilt()) {
 			AxisAlignedBB bounds = court.getCourtRenderBounds();
+		//	ChunkCoordinates bb = PositionHelper.getStartPosition(court.getTeamOneBounds(), court.getOrientation(), 0, 1);
 			if (bounds != null) {
 				GL11.glPushMatrix();
 				GL11.glTranslated(-court.xCoord + d0, -court.yCoord + d1, -court.zCoord + d2);
@@ -45,6 +48,24 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 						this.renderLivingLabel(court, "Team " + court.getTeam(e.entityId), court.xCoord, court.yCoord, court.zCoord, 0xff0000);
 					}
 				}
+
+				for (int i = 0; i < 6; i++) {
+					Vec3 vecPl = court.getSpawnPosition(i, 2);
+
+					this.renderLivingLabel(court, "Player "  + i, vecPl.xCoord, vecPl.yCoord, vecPl.zCoord, 0xff0000);
+				}
+				
+				for (int i = 0; i < 6; i++) {
+					Vec3 vecPl = court.getSpawnPosition(i, 1);
+
+					this.renderLivingLabel(court, "Player "  + i, vecPl.xCoord, vecPl.yCoord, vecPl.zCoord, 0xff0000);
+				}
+
+				//Overlays.renderLineFromToBlock(vecPl.xCoord, vecPl.yCoord, vecPl.zCoord, vecPl.xCoord, vecPl.yCoord+3, vecPl.zCoord, 0xFFFFFF);
+				//System.out.println(vecPl.xCoord + " " + vecPl.yCoord + " " + vecPl.zCoord);
+	
+				
+			//	this.renderLivingLabel(court, "X", bb.posX, bb.posY, bb.posZ, 0xff00ff);
 
 				GL11.glTranslated(court.xCoord + d0, court.yCoord + d1, court.zCoord + d2);
 				GL11.glPopMatrix();
@@ -176,6 +197,8 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 			GL11.glDisable(GL11.GL_LIGHTING);
 			GL11.glDepthMask(false);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
+      //      GL11.glRotatef(-court.ge, 0.0F, 1.0F, 0.0F);
+       //     GL11.glRotatef(this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			Tessellator tessellator = Tessellator.instance;
