@@ -180,6 +180,11 @@ public class GuiGameSettings extends GuiScreen {
 
 			this.fontRenderer.drawStringWithShadow("Team 1 Name:", 47, score2.yPosition + 50, 0xffffff);
 			this.fontRenderer.drawStringWithShadow("Team 2 Name:", width - 113, score2.yPosition + 50, 0xffffff);
+			
+			this.fontRenderer.drawStringWithShadow("Team 1", (int)(width / 2) + 10, 20, 0xaa00aa);
+			this.fontRenderer.drawStringWithShadow("Team 2", (int)(width / 2) + 90, 20, 0xffaa00);
+			
+			drawPlayerNames();
 
 			this.customScore.drawTextBox();
 			this.tf_team1.drawTextBox();
@@ -190,11 +195,21 @@ public class GuiGameSettings extends GuiScreen {
 
 		super.drawScreen(i,j,f);
 	}
+	
+	private void drawPlayerNames() {
+		for (int i = 0; i < team1.size(); i++) {
+			this.fontRenderer.drawStringWithShadow(team1.get(i), (int)(width / 2) + 10, 35 + 20 * i, 0xffffff);
+		}
+		
+		for (int i = 0; i < team2.size(); i++) {
+			this.fontRenderer.drawStringWithShadow(team2.get(i), (int)(width / 2) + 90, 35 + 20 * i, 0xffffff);
+		}
+	}
 
 	private void addButtons() {
 		buttonList.clear();
 
-		buttonList.add(new GuiButton(2000, this.width / 2 - (int)(this.fontRenderer.getStringWidth("Build Court") / 1.7), this.height / 4 + 96 + 40, 70, 20, "Build Court"));
+		buttonList.add(new GuiButton(2000, this.width / 2 - (int)(this.fontRenderer.getStringWidth("Start Game") / 1.7), this.height / 4 + 96 + 40, 70, 20, "Start Game"));
 		check1 = new GuiCheckbox(2001, (int)(width / 24), (int)(height / 8));
 		check1.checked = true;
 		buttonList.add(check1);

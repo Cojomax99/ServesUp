@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 public class ItemVolleyball extends Item {
@@ -34,21 +35,24 @@ public class ItemVolleyball extends Item {
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
     @Override
-    public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer) {
-        if (!par3EntityPlayer.capabilities.isCreativeMode)
+    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
+        if (!player.capabilities.isCreativeMode)
         {
-            --par1ItemStack.stackSize;
+            --stack.stackSize;
         }
 
-        par2World.playSoundAtEntity(par3EntityPlayer, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
+        world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
-        if (!par2World.isRemote) {
-        	EntityVolleyball ball = new EntityVolleyball(par2World, par3EntityPlayer, true);
-        	ball.setLocationAndAngles(par3EntityPlayer.posX, par3EntityPlayer.posY, par3EntityPlayer.posZ, 0, 0);
-            par2World.spawnEntityInWorld(ball);
+        if (!world.isRemote) {
+        	EntityVolleyball ball = new EntityVolleyball(world, player, true);
+        	
+        	float yaw = MathHelper.wrapAngleTo180_float(player.rotationYaw);
+        	System.out.println(yaw);
+        	ball.setLocationAndAngles(player.posX, player.posY, player.posZ, 0, 0);
+            world.spawnEntityInWorld(ball);
         }
 
-        return par1ItemStack;
+        return stack;
     }
 
 }
