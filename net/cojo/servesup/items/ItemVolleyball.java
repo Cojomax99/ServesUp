@@ -44,7 +44,11 @@ public class ItemVolleyball extends Item {
         world.playSoundAtEntity(player, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
         if (!world.isRemote) {
-        	EntityVolleyball ball = new EntityVolleyball(world, player, true);
+        	int courtX = stack.stackTagCompound.getInteger("courtX");
+        	int courtY = stack.stackTagCompound.getInteger("courtY");
+        	int courtZ = stack.stackTagCompound.getInteger("courtZ");
+        			
+        	EntityVolleyball ball = new EntityVolleyball(world, player, true, courtX, courtY, courtZ);
         	
         	float yaw = MathHelper.wrapAngleTo180_float(player.rotationYaw);
         	System.out.println(yaw);

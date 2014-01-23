@@ -9,9 +9,11 @@ import java.util.Map;
 import net.cojo.servesup.court.CourtBuilder;
 import net.cojo.servesup.court.CourtData;
 import net.cojo.servesup.court.PositionHelper;
+import net.cojo.servesup.entities.EntityVolleyball;
+import net.cojo.servesup.items.SUItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.network.INetworkManager;
@@ -31,25 +33,36 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityGameManager extends TileEntity {
 
+	/**
+	 * 
+	 * 
+	 * 
+	 * http://www.fivb.org/en/volleyball/Basic_Rules.asp
+	 * 
+	 * 
+	 * http://iml.jou.ufl.edu/projects/Fall08/Devine/rules.html
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	
+	
+	
+	
 	/** Court orientation */
 	public int orientation;
-
-	/** Is there currently a game going on? */
-	public boolean isGameActive;
 
 	/** Has the court been built yet? */
 	public boolean isCourtBuilt;
 
-	/**
-	 * Current state of the game.<br>
-	 * States:<br>
-	 * <li>0: Built
-	 * <li>1: Started, pre-game
-	 * <li>2: Serve state
-	 * <li>3: Ball in play
-	 * <li>4: Give points stage, set up next turn, go to state 2
-	 */
-	public int gameState;
+	/** Current state of the game. See GameStates.java for details */
+	public byte gameState;
+	
+	/** 1 if team 1 is serving, 2 if team 2 is serving */
+	public byte teamServing;
 
 	/** List of entity ids of active players */
 	public List<Integer> activeIDs;
@@ -107,22 +120,22 @@ public class TileEntityGameManager extends TileEntity {
 		Vec3 vec = Vec3.createVectorHelper(this.xCoord, this.yCoord, this.zCoord + 0.5);
 		Vec3 vecRel = Vec3.createVectorHelper(MathHelper.floor_double(CourtBuilder.WIDTH / 2) + 2.5, 0, 0);
 
-		int degrees = orientation == 0 ? 90 : orientation == 1 ? -90 : orientation == 2 ? 180 : 0;
-
-		vecRel.rotateAroundY((float) (Math.toRadians(degrees)));
-		//vecRel.rotateAroundY(0F);
+		vecRel.rotateAroundY((float) (Math.toRadians(getDegreeOrientation())));
 		Vec3 vecNet = Vec3.createVectorHelper(vec.xCoord + vecRel.xCoord, vec.yCoord + vecRel.yCoord, vec.zCoord + vecRel.zCoord);
-		printVec(vecNet);
 		Vec3 gridPos = positionOffsetsMap.get(/*team == 1 ? team1.size() + 3 : team2.size() + 3*/6).get(pos);
 		Vec3 vecRelPlayer1 = Vec3.createVectorHelper(gridPos.xCoord * ((CourtBuilder.LENGTH / 2) + 0.5), 0, gridPos.zCoord * (MathHelper.floor_double(CourtBuilder.WIDTH / 2) + 2.5));
 		if (team == 1)
-			vecRelPlayer1.rotateAroundY((float) Math.toRadians(degrees + -90));
+			vecRelPlayer1.rotateAroundY((float) Math.toRadians(getDegreeOrientation() - 90));
 		else
-			vecRelPlayer1.rotateAroundY((float) Math.toRadians(degrees + 90));
+			vecRelPlayer1.rotateAroundY((float) Math.toRadians(getDegreeOrientation() + 90));
 
 		Vec3 vecPl = Vec3.createVectorHelper(vecNet.xCoord + vecRelPlayer1.xCoord, vecNet.yCoord + vecRelPlayer1.yCoord, vecNet.zCoord + vecRelPlayer1.zCoord);
 
 		return vecPl;
+	}
+	
+	public int getDegreeOrientation() {
+		return orientation == 0 ? 90 : orientation == 1 ? -90 : orientation == 2 ? 180 : 0;
 	}
 
 	private void printVec(Vec3 vec) {
@@ -299,46 +312,84 @@ public class TileEntityGameManager extends TileEntity {
 	public void readFromNBT(NBTTagCompound nbt) {
 		super.readFromNBT(nbt);
 		orientation = nbt.getInteger("Orientation");
-		isGameActive = nbt.getBoolean("GameActive");
 		isCourtBuilt = nbt.getBoolean("CourtBuilt");
 		minX = nbt.getInteger("minX");
 		maxX = nbt.getInteger("maxX");
 		minZ = nbt.getInteger("minZ");
 		maxZ = nbt.getInteger("maxZ");
-		gameState = nbt.getInteger("GameState");
-
-		//	if (isGameActive)	
-		activeIDs = getList(nbt.getIntArray("ActiveIDs"));
-		//	else
-		//		activeIDs = new ArrayList<Integer>();
-
-		team1 = getList(nbt.getIntArray("Team1IDs"));
-		team2 = getList(nbt.getIntArray("Team2IDs"));
-
-		int count = 0;
-
-		Iterator it = nbt.getCompoundTag("playerMapCompound").getTags().iterator();
-		while (it.hasNext()) {
-			count++;
-			NBTTagInt data = (NBTTagInt)it.next();
-			playerTeamMap.put(Integer.valueOf(data.getName()), data.data);
-		}
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound nbt) {
 		super.writeToNBT(nbt);
 		nbt.setInteger("Orientation", orientation);
-		nbt.setBoolean("GameActive", isGameActive);
 		nbt.setBoolean("CourtBuilt", isCourtBuilt);
 		nbt.setInteger("minX", minX);
 		nbt.setInteger("maxX", maxX);
 		nbt.setInteger("minZ", minZ);
 		nbt.setInteger("maxZ", maxZ);
+	}
+
+	/**
+	 * Called when you receive a TileEntityData packet for the location this
+	 * TileEntity is currently in. On the client, the NetworkManager will always
+	 * be the remote server. On the server, it will be whomever is responsible for
+	 * sending the packet.
+	 *
+	 * @param net The NetworkManager the packet originated from
+	 * @param pkt The data packet
+	 */
+	@Override
+	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt) {
+		this.readFromNBTPacket(pkt.data);
+	}
+
+	/**
+	 * A packet for syncing data client <-> server
+	 */
+	@Override
+	public Packet getDescriptionPacket() {
+		NBTTagCompound var1 = new NBTTagCompound();
+		this.writeToNBTPacket(var1);
+		return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, var1);
+	}	
+
+	/**
+	 * Sync the data so all clients get the same data
+	 */
+	public void sync() {
+		PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(), worldObj.provider.dimensionId);
+	}
+	
+	/**
+	 * NBT loading while in-game, for syncing purposes. DOES NOT READ FROM DISK ON LOAD.
+	 * @param nbt tag compound
+	 */
+	public void readFromNBTPacket(NBTTagCompound nbt) {
+		gameState = nbt.getByte("GameState");
+		activeIDs = getList(nbt.getIntArray("ActiveIDs"));
+		team1 = getList(nbt.getIntArray("Team1IDs"));
+		team2 = getList(nbt.getIntArray("Team2IDs"));
+
+		int count = 0;
+		Iterator it = nbt.getCompoundTag("playerMapCompound").getTags().iterator();
+		
+		while (it.hasNext()) {
+			count++;
+			NBTTagInt data = (NBTTagInt)it.next();
+			playerTeamMap.put(Integer.valueOf(data.getName()), data.data);
+		}
+	}
+	
+	/**
+	 * NBT saving while in-game, for syncing purposes. DOES NOT SAVE TO DISK.
+	 * @param nbt tag compound
+	 */
+	public void writeToNBTPacket(NBTTagCompound nbt) {
 		nbt.setIntArray("ActiveIDs", Ints.toArray(activeIDs));
-		nbt.setIntArray("team1IDs", Ints.toArray(team1));
-		nbt.setIntArray("team2IDs", Ints.toArray(team2));
-		nbt.setInteger("GameState", this.gameState);
+		nbt.setIntArray("Team1IDs", Ints.toArray(team1));
+		nbt.setIntArray("Team2IDs", Ints.toArray(team2));
+		nbt.setByte("GameState", this.gameState);
 
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 
@@ -392,30 +443,6 @@ public class TileEntityGameManager extends TileEntity {
 	}
 
 	/**
-	 * Called when you receive a TileEntityData packet for the location this
-	 * TileEntity is currently in. On the client, the NetworkManager will always
-	 * be the remote server. On the server, it will be whomever is responsible for
-	 * sending the packet.
-	 *
-	 * @param net The NetworkManager the packet originated from
-	 * @param pkt The data packet
-	 */
-	@Override
-	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt) {
-		this.readFromNBT(pkt.data);
-	}
-
-	/**
-	 * Overriden in a sign to provide the text.
-	 */
-	@Override
-	public Packet getDescriptionPacket() {
-		NBTTagCompound var1 = new NBTTagCompound();
-		this.writeToNBT(var1);
-		return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, var1);
-	}
-
-	/**
 	 * Change the orientation
 	 */
 	public void rotate() {
@@ -433,40 +460,11 @@ public class TileEntityGameManager extends TileEntity {
 	}
 
 	/**
-	 * Sync the data so all clients get the same data
-	 */
-	public void sync() {
-		PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(), worldObj.provider.dimensionId);
-	}
-
-	/**
 	 * 
 	 * @return Get the orientation of the court
 	 */
 	public int getOrientation() {
 		return this.orientation;
-	}
-
-	/**
-	 * Runs the game loop
-	 */
-	@Override
-	public void updateEntity() {
-		// If the game state is 0 and it can be 1, change it to 1
-		if (this.isCourtBuilt && !this.isGameActive && this.gameState == 0)
-			gameState = 1;		
-
-		Iterator<Integer> it = activeIDs.iterator();
-
-		while (it.hasNext()) {
-			Integer id = it.next();
-
-			Entity ent = this.worldObj.getEntityByID(id.intValue());
-
-			if (ent instanceof EntityPlayer) {
-				EntityPlayer player = (EntityPlayer)ent;
-			}
-		}
 	}
 
 	/**
@@ -499,6 +497,64 @@ public class TileEntityGameManager extends TileEntity {
 			return AxisAlignedBB.getAABBPool().getAABB(minX + 1, y(), minZ, maxX, y(), midZ);
 		else
 			return AxisAlignedBB.getAABBPool().getAABB(minX, y(), minZ + 1, midX, y(), maxZ);
+	}
+	
+	/**
+	 * Quick method for checking if the current game state is a given state
+	 * @param state Value of a game state
+	 * @return Whether the given game state is the current game state
+	 */
+	private boolean isGameState(byte state) {
+		return this.gameState == state;
+	}
+	
+	/**
+	 * Triggered when a ball lands on the ground. If it is within bounds and
+	 * a game is currently going on, appropriate action is taken with regards
+	 * to scoring and rotating players around if necessary.
+	 * 
+	 * @param ball volleyball entity
+	 */
+	public void onBallImpact(EntityVolleyball ball) {
+		
+	}
+	
+	/**
+	 * Runs the game loop
+	 */
+	@Override
+	public void updateEntity() {
+		Iterator<Integer> it = activeIDs.iterator();
+
+		while (it.hasNext()) {
+			Integer id = it.next();
+
+			Entity ent = this.worldObj.getEntityByID(id.intValue());
+			
+			if (ent instanceof EntityLivingBase) {
+				EntityLivingBase el = (EntityLivingBase)ent;
+				if (el.getCurrentItemOrArmor(0) == null || el.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID)
+					el.setCurrentItemOrArmor(0, getVolleyballItem());
+			}
+
+			//if (isGameState(GameStates.PRE_SERVE)) {
+				
+			//}
+		}
+	}
+	
+	/**
+	 * Gets a volleyball for serving, injects the coords hash into it for later use
+	 * @return A volleyball item with injected NBT
+	 */
+	public ItemStack getVolleyballItem() {
+		ItemStack vball = new ItemStack(SUItems.volleyball);
+		vball.stackTagCompound = new NBTTagCompound();
+		vball.stackTagCompound.setInteger("courtX", xCoord);
+		vball.stackTagCompound.setInteger("courtY", yCoord);
+		vball.stackTagCompound.setInteger("courtZ", zCoord);
+		
+		return vball;
 	}
 
 }

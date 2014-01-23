@@ -3,12 +3,13 @@ package net.cojo.servesup.entities;
 import java.util.List;
 
 import net.cojo.servesup.physics.BallPhysicsHelper;
-import net.minecraft.block.Block;
+import net.cojo.servesup.tileentity.TileEntityGameManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
@@ -31,15 +32,31 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 	/** Is this entity in contact with the ground? */
 	public boolean inGround;
-	
+
 	/** Is this ball on a serve? */
 	public boolean isServe;
 
-	public EntityVolleyball(World par1World, EntityLivingBase player, boolean isServe) {
+	/** Number of ticks the ball has been on the ground */
+	private int ticksInGround;
+
+	/** Number of ticks the ball has been in the air */
+	private int ticksInAir = 0;
+
+	private int xTile = -1;
+	private int yTile = -1;
+	private int zTile = -1;
+	private int inTile = 0;
+
+	public int courtX = 0, courtY = 0, courtZ = 0;
+
+	public EntityVolleyball(World par1World, EntityLivingBase player, boolean isServe, int courtX, int courtY, int courtZ) {
 		super(par1World);
 		this.setSize(0.25F, 0.25F);
 		this.hitter = player;
 		this.isServe = isServe;
+		this.courtX = courtX;
+		this.courtY = courtY;
+		this.courtZ = courtZ;
 	}
 
 	public EntityVolleyball(World world) {
@@ -67,12 +84,16 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 	@Override
 	public void writeSpawnData(ByteArrayDataOutput data) {
-
+		data.writeInt(courtX);
+		data.writeInt(courtY);
+		data.writeInt(courtZ);
 	}
 
 	@Override
 	public void readSpawnData(ByteArrayDataInput data) {
-
+		courtX = data.readInt();
+		courtY = data.readInt();
+		courtZ = data.readInt();
 	}
 
 	@Override
@@ -81,7 +102,11 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 		if (this.hitterName != null && this.hitterName.length() == 0) {
 			this.hitterName = null;
-		}	
+		}
+
+		this.courtX = nbttagcompound.getInteger("courtX");
+		this.courtY = nbttagcompound.getInteger("courtY");
+		this.courtZ = nbttagcompound.getInteger("courtZ");
 	}
 
 	@Override
@@ -91,6 +116,9 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		}
 
 		nbttagcompound.setString("ownerName", this.hitterName == null ? "" : this.hitterName);
+		nbttagcompound.setInteger("courtX", courtX);
+		nbttagcompound.setInteger("courtY", courtY);
+		nbttagcompound.setInteger("courtZ", courtZ);
 	}
 
 	@Override
@@ -107,12 +135,12 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		par5 *= (double)par7;
 		this.motionX = par1;
 		this.motionY = par3;
-		
+
 		if (isServe)
 			this.motionY = 2;
-		
+
 		System.out.println("set throwable heading");
-		
+
 		this.motionZ = par5;
 		float f3 = MathHelper.sqrt_double(par1 * par1 + par5 * par5);
 		this.prevRotationYaw = this.rotationYaw = (float)(Math.atan2(par1, par5) * 180.0D / Math.PI);
@@ -142,26 +170,44 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 	/**
 	 * Called to update the entity's position/logic.
 	 */
-	public void onUpdate()
-	{
+	public void onUpdate() {
 		this.lastTickPosX = this.posX;
 		this.lastTickPosY = this.posY;
 		this.lastTickPosZ = this.posZ;
 		super.onUpdate();
-		
+
 		Vec3 vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
 		Vec3 vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 		MovingObjectPosition movingobjectposition = this.worldObj.clip(vec3, vec31);
 		vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
 		vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
-		if (movingobjectposition != null)
-		{
+		if (this.inGround) {
+			int i = this.worldObj.getBlockId(this.xTile, this.yTile, this.zTile);
+
+			if (i == this.inTile) {
+				++this.ticksInGround;
+
+				if (!worldObj.isRemote) {
+					TileEntity te = worldObj.getBlockTileEntity(courtX, courtY, courtZ);
+					if (te != null && te instanceof TileEntityGameManager) {
+						TileEntityGameManager court = (TileEntityGameManager)te;
+						
+						court.onBallImpact(this);
+					}
+				}
+				
+				return;
+			}
+		} else {
+			++this.ticksInAir;
+		}		
+
+		if (movingobjectposition != null) {
 			vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
 		}
 
-		if (!this.worldObj.isRemote)
-		{
+		if (!this.worldObj.isRemote) {
 			float triggerDist = 4.0F;
 			Entity entity = null;
 			// distance beyond entity to check
@@ -183,7 +229,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 					if (entity1 instanceof EntityLivingBase) {
 						EntityLivingBase player = (EntityLivingBase)entity1;
-						
+
 						if (isServe) {
 							BallPhysicsHelper.hitEvent(this, player, isServe);
 							isServe = false;
@@ -193,7 +239,6 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 							double speed = Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
 
 							if (entity1.getDistanceToEntity(this) < triggerDist) {
-								System.out.println("hit ball!");
 								BallPhysicsHelper.hitEvent(this, player, isServe);
 							}
 						}
@@ -222,7 +267,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		{
 			if (movingobjectposition.typeOfHit == EnumMovingObjectType.TILE/* && this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ) == Block.portal.blockID*/)
 			{
-				this.setInPortal();
+				//	this.setInPortal();
 			}
 			else
 			{
