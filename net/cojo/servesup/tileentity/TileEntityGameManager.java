@@ -67,7 +67,7 @@ public class TileEntityGameManager extends TileEntity {
 
 	/** Team 2's score */
 	public short team2Score;
-	
+
 	/** Is either a team number (1, 2) if that team needs to get rotated, or -1 otherwise */
 	public byte rotateTeamFlag;
 
@@ -416,7 +416,7 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setShort("Team1Score", team1Score);
 		nbt.setShort("Team2Score", team2Score);
 		nbt.setByte("RotateTeamFlag", rotateTeamFlag);
-		
+
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 
 		int count = 0;
@@ -569,12 +569,12 @@ public class TileEntityGameManager extends TileEntity {
 	public void onRoundEnd(int side, EntityVolleyball ball) {
 		// Update the game state to END_ROUND, do not sync
 		this.updateGameState(GameStates.END_ROUND, false);
-		
+
 		// Update the game score, do not sync
 		this.onScore(side, ball, false);
-		
+
 		// Update the game state to PRE_SERVE, effectively preparing for next round, DO sync
-		this.updateGameState(GameStates.PRE_SERVE, true);
+		this.updateGameState(GameStates.PRE_SERVE, false);
 	}
 
 	/**
@@ -600,7 +600,7 @@ public class TileEntityGameManager extends TileEntity {
 					this.team1Score++;
 			}
 	}
-	
+
 	/**
 	 * Update the flag that determines which team should be rotated, if any
 	 * @param flag new flag to set
@@ -608,7 +608,7 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	public void updateRotateFlag(byte flag, boolean shouldSync) {
 		this.rotateTeamFlag = flag;
-		
+
 		if (shouldSync)
 			this.sync();
 	}
@@ -637,7 +637,7 @@ public class TileEntityGameManager extends TileEntity {
 			System.err.println("Ball is off the court :(");
 		}
 	}
-	
+
 	/**
 	 * Gets a volleyball for serving, injects the coords hash into it for later use
 	 * @return A volleyball item with injected NBT
@@ -651,7 +651,7 @@ public class TileEntityGameManager extends TileEntity {
 
 		return vball;
 	}
-	
+
 	/**
 	 * Rotate all members of a team to their next position(s)
 	 * @param team Team to rotate the members of
@@ -659,16 +659,16 @@ public class TileEntityGameManager extends TileEntity {
 	public void rotateTeam(byte team) {
 		if (team == -1)
 			return;
-		
+
 		Iterator<Integer> it = null;
-		
+
 		if (team == 1)
 			it = this.team1PositionMap.keySet().iterator();
 		else
 			if (team == 2) {
 				it = this.team2PositionMap.keySet().iterator();
 			}
-		
+
 		if (it == null)
 			return;
 
@@ -685,12 +685,55 @@ public class TileEntityGameManager extends TileEntity {
 				}
 		}		
 	}
-	
+
 	/**
 	 * Update the player positions based on the current values in the team position maps.
 	 */
 	public void updatePlayerPositions() {
+		// First do team 1
+		Iterator<Integer> players = this.team1.iterator();
+
+		while (players.hasNext()) {
+			Integer id = players.next();
+			Entity ent = this.worldObj.getEntityByID(id.intValue());
+
+			Vec3 spawnPos = getSpawnPosition(id, 1);
+			movePlayer(ent, spawnPos, 1);
+		}
+
+		// Now do team 2
+		players = this.team2.iterator();
+
+		while (players.hasNext()) {
+			Integer id = players.next();
+			Entity ent = this.worldObj.getEntityByID(id.intValue());
+
+			Vec3 spawnPos = getSpawnPosition(id, 2);
+			movePlayer(ent, spawnPos, 2);
+		}
+	}
+
+	/**
+	 * Moves a player to coordinates
+	 * @param player Player on the court
+	 * @param coords Vec3 containing x,y,z coords to move player to
+	 * @param team Team the player is on
+	 */
+	private void movePlayer(Entity player, Vec3 coords, int team) {
+		//TODO use team to determine which orientation to set player as
+		player.setLocationAndAngles(coords.xCoord, coords.yCoord, coords.zCoord, 0, 0);
+	}
+	
+	/**
+	 * Set the game state
+	 * @param state Game state
+	 * @param sync Should it sync with the client?
+	 */
+	public void setGameState(byte state, boolean sync) {
+		this.gameState = state;
 		
+		if (sync)
+			sync();
 	}
 
 	/**
@@ -715,11 +758,12 @@ public class TileEntityGameManager extends TileEntity {
 
 			//}
 		}
-		
+
 		if (isGameState(GameStates.PRE_SERVE)) {
 			if (rotateTeamFlag != -1) {
 				rotateTeam(rotateTeamFlag);
 				updatePlayerPositions();
+				setGameState(GameStates.SERVING, true);
 			}
 		}
 	}
