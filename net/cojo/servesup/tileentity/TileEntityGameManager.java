@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.cojo.servesup.GameStates;
 import net.cojo.servesup.court.CourtBuilder;
 import net.cojo.servesup.court.CourtData;
 import net.cojo.servesup.court.PositionHelper;
@@ -48,10 +49,10 @@ public class TileEntityGameManager extends TileEntity {
 	 * 
 	 * 
 	 */
-	
-	
-	
-	
+
+
+
+
 	/** Court orientation */
 	public int orientation;
 
@@ -60,7 +61,13 @@ public class TileEntityGameManager extends TileEntity {
 
 	/** Current state of the game. See GameStates.java for details */
 	public byte gameState;
-	
+
+	/** Team 1's score */
+	public short team1Score;
+
+	/** Team 2's score */
+	public short team2Score;
+
 	/** 1 if team 1 is serving, 2 if team 2 is serving */
 	public byte teamServing;
 
@@ -133,11 +140,19 @@ public class TileEntityGameManager extends TileEntity {
 
 		return vecPl;
 	}
-	
+
+	/**
+	 * 
+	 * @return Get a degree value for a numbered orientation (0-3)
+	 */
 	public int getDegreeOrientation() {
 		return orientation == 0 ? 90 : orientation == 1 ? -90 : orientation == 2 ? 180 : 0;
 	}
 
+	/**
+	 * Simplification method for printing out the values of a vector, for debug only
+	 * @param vec Vector
+	 */
 	private void printVec(Vec3 vec) {
 		System.out.println(vec.xCoord + " " + vec.yCoord + " " + vec.zCoord);
 	}
@@ -360,7 +375,7 @@ public class TileEntityGameManager extends TileEntity {
 	public void sync() {
 		PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(), worldObj.provider.dimensionId);
 	}
-	
+
 	/**
 	 * NBT loading while in-game, for syncing purposes. DOES NOT READ FROM DISK ON LOAD.
 	 * @param nbt tag compound
@@ -370,17 +385,19 @@ public class TileEntityGameManager extends TileEntity {
 		activeIDs = getList(nbt.getIntArray("ActiveIDs"));
 		team1 = getList(nbt.getIntArray("Team1IDs"));
 		team2 = getList(nbt.getIntArray("Team2IDs"));
+		team1Score = nbt.getShort("Team1Score");
+		team2Score = nbt.getShort("Team2Score");
 
 		int count = 0;
 		Iterator it = nbt.getCompoundTag("playerMapCompound").getTags().iterator();
-		
+
 		while (it.hasNext()) {
 			count++;
 			NBTTagInt data = (NBTTagInt)it.next();
 			playerTeamMap.put(Integer.valueOf(data.getName()), data.data);
 		}
 	}
-	
+
 	/**
 	 * NBT saving while in-game, for syncing purposes. DOES NOT SAVE TO DISK.
 	 * @param nbt tag compound
@@ -390,6 +407,8 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setIntArray("Team1IDs", Ints.toArray(team1));
 		nbt.setIntArray("Team2IDs", Ints.toArray(team2));
 		nbt.setByte("GameState", this.gameState);
+		nbt.setShort("Team1Score", team1Score);
+		nbt.setShort("Team2Score", team2Score);
 
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 
@@ -498,7 +517,7 @@ public class TileEntityGameManager extends TileEntity {
 		else
 			return AxisAlignedBB.getAABBPool().getAABB(minX, y(), minZ + 1, midX, y(), maxZ);
 	}
-	
+
 	/**
 	 * Quick method for checking if the current game state is a given state
 	 * @param state Value of a game state
@@ -507,7 +526,17 @@ public class TileEntityGameManager extends TileEntity {
 	private boolean isGameState(byte state) {
 		return this.gameState == state;
 	}
-	
+
+	/**
+	 * Returns the side of the court this entity is on, or -1 if it is not on either
+	 * @param e Entity
+	 * @return Which side of the court an entity is on, or -1 if not on either
+	 */
+	public int getCurrentCourtSide(Entity e) {
+		return this.getTeamOneBounds().intersectsWith(e.getBoundingBox()) ? 1 :
+			this.getTeamTwoBounds().intersectsWith(e.getBoundingBox()) ? 2 : -1;
+	}
+
 	/**
 	 * Triggered when a ball lands on the ground. If it is within bounds and
 	 * a game is currently going on, appropriate action is taken with regards
@@ -516,9 +545,74 @@ public class TileEntityGameManager extends TileEntity {
 	 * @param ball volleyball entity
 	 */
 	public void onBallImpact(EntityVolleyball ball) {
+		int side = getCurrentCourtSide(ball);
+
+		//TODO debug, remove
+		outputDebugData(side, ball);
+
+		//TODO all game logic here!
+		this.onRoundEnd(side, ball);
+	}
+
+	/**
+	 * Called when the round is over, triggered by onBallImpact
+	 * @param side Side the ball landed on
+	 * @param ball Volleyball entity reference
+	 */
+	public void onRoundEnd(int side, EntityVolleyball ball) {
+		this.updateGameState(GameStates.END_ROUND, false);
+		this.onScore(side, ball, false);
 		
 	}
-	
+
+	/**
+	 * Update the game score
+	 * @param side Side of the court the ball landed on
+	 */
+	public void onScore(int side, EntityVolleyball ball, boolean shouldSync) {
+		if (side == 1) {
+			this.team2Score++;
+			if (this.getTeam(ball.getHitter().entityId) == 1) {
+				//TODO: rotate team 2
+			}
+		} else
+			if (side == 2) {
+				if (this.getTeam(ball.getHitter().entityId) == 2) {
+					//TODO: rotate team 1
+				}
+			} else {
+				if (this.getTeam(ball.getHitter().entityId) == 1) {
+					this.team2Score++;
+				} else
+					this.team1Score++;
+			}
+	}
+
+	/**
+	 * Updates the game state variable
+	 * @param state New state for the game to be
+	 * @param shouldSync Whether this should sync with the client or not. Usually false when called in other methods that update variables
+	 */
+	public void updateGameState(byte state, boolean shouldSync) {
+		this.gameState = state;
+
+		if (shouldSync)
+			this.sync();
+	}
+
+	private void outputDebugData(int side, EntityVolleyball ball) {
+		if (side != -1) {			
+			EntityLivingBase server = ball.getHitter();
+			if (server != null) {
+				String line = String.format("Ball landed on side %d. Served by: %s who is on team %d",
+						side, server.getEntityName(), getTeam(server.entityId));
+				System.out.println(line);
+			}
+		} else {
+			System.err.println("Ball is off the court :(");
+		}
+	}
+
 	/**
 	 * Runs the game loop
 	 */
@@ -530,7 +624,7 @@ public class TileEntityGameManager extends TileEntity {
 			Integer id = it.next();
 
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
-			
+
 			if (ent instanceof EntityLivingBase) {
 				EntityLivingBase el = (EntityLivingBase)ent;
 				if (el.getCurrentItemOrArmor(0) == null || el.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID)
@@ -538,11 +632,11 @@ public class TileEntityGameManager extends TileEntity {
 			}
 
 			//if (isGameState(GameStates.PRE_SERVE)) {
-				
+
 			//}
 		}
 	}
-	
+
 	/**
 	 * Gets a volleyball for serving, injects the coords hash into it for later use
 	 * @return A volleyball item with injected NBT
@@ -553,7 +647,7 @@ public class TileEntityGameManager extends TileEntity {
 		vball.stackTagCompound.setInteger("courtX", xCoord);
 		vball.stackTagCompound.setInteger("courtY", yCoord);
 		vball.stackTagCompound.setInteger("courtZ", zCoord);
-		
+
 		return vball;
 	}
 

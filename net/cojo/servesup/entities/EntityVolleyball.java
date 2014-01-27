@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -97,7 +98,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 	}
 
 	@Override
-	protected void readEntityFromNBT(NBTTagCompound nbttagcompound) {
+	public void readEntityFromNBT(NBTTagCompound nbttagcompound) {
 		this.hitterName = nbttagcompound.getString("ownerName");
 
 		if (this.hitterName != null && this.hitterName.length() == 0) {
@@ -110,7 +111,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 	}
 
 	@Override
-	protected void writeEntityToNBT(NBTTagCompound nbttagcompound) {
+	public void writeEntityToNBT(NBTTagCompound nbttagcompound) {
 		if ((this.hitterName == null || this.hitterName.length() == 0) && this.hitter != null && this.hitter instanceof EntityPlayer) {
 			this.hitterName = this.hitter.getEntityName();
 		}
@@ -170,11 +171,14 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 	/**
 	 * Called to update the entity's position/logic.
 	 */
+	@Override
 	public void onUpdate() {
 		this.lastTickPosX = this.posX;
 		this.lastTickPosY = this.posY;
 		this.lastTickPosZ = this.posZ;
+		
 		super.onUpdate();
+		//System.out.println("return");
 
 		Vec3 vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
 		Vec3 vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
@@ -182,26 +186,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
 		vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
-		if (this.inGround) {
-			int i = this.worldObj.getBlockId(this.xTile, this.yTile, this.zTile);
-
-			if (i == this.inTile) {
-				++this.ticksInGround;
-
-				if (!worldObj.isRemote) {
-					TileEntity te = worldObj.getBlockTileEntity(courtX, courtY, courtZ);
-					if (te != null && te instanceof TileEntityGameManager) {
-						TileEntityGameManager court = (TileEntityGameManager)te;
-						
-						court.onBallImpact(this);
-					}
-				}
-				
-				return;
-			}
-		} else {
-			++this.ticksInAir;
-		}		
+		
 
 		if (movingobjectposition != null) {
 			vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
@@ -268,6 +253,8 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 			if (movingobjectposition.typeOfHit == EnumMovingObjectType.TILE/* && this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ) == Block.portal.blockID*/)
 			{
 				//	this.setInPortal();
+		//		System.out.println("hit ground");
+			//	this.onImpact(movingobjectposition);
 			}
 			else
 			{
@@ -321,7 +308,53 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		this.motionY *= (double)f2;
 		this.motionZ *= (double)f2;
 		this.motionY -= (double)f3;
-		this.setPosition(this.posX, this.posY, this.posZ);
+		//this.setPosition(this.posX, this.posY, this.posZ);
+		this.moveEntity(motionX, motionY, motionZ);
+		
+		boolean onGround2 = this.posY == MathHelper.floor_double(courtY);
+
+		if (onGround) {
+		//	System.out.println("hueoawueroauwoeriuawoerui");
+			int i = this.worldObj.getBlockId(this.xTile, this.yTile - 1, this.zTile);
+
+			if (i == this.inTile) {
+				++this.ticksInGround;
+
+				if (!worldObj.isRemote) {
+					TileEntity te = worldObj.getBlockTileEntity(courtX, courtY, courtZ);
+					if (te != null && te instanceof TileEntityGameManager) {
+						TileEntityGameManager court = (TileEntityGameManager)te;
+
+						court.onBallImpact(this);
+						setDead();
+					}
+				}
+				return;
+			}
+		} else {
+			++this.ticksInAir;
+		}		
+	}
+	
+    /**
+     * returns the bounding box for this entity
+     */
+    public AxisAlignedBB getBoundingBox() {
+        return this.boundingBox;
+    }
+
+	//@Override
+	protected void onImpact(MovingObjectPosition movingobjectposition) {
+		if (movingobjectposition.typeOfHit == EnumMovingObjectType.TILE) {
+			if (!worldObj.isRemote) {
+				TileEntity te = worldObj.getBlockTileEntity(courtX, courtY, courtZ);
+				if (te != null && te instanceof TileEntityGameManager) {
+					TileEntityGameManager court = (TileEntityGameManager)te;
+
+					court.onBallImpact(this);
+				}
+			}
+		}
 	}
 
 }
