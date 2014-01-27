@@ -67,6 +67,9 @@ public class TileEntityGameManager extends TileEntity {
 
 	/** Team 2's score */
 	public short team2Score;
+	
+	/** Is either a team number (1, 2) if that team needs to get rotated, or -1 otherwise */
+	public byte rotateTeamFlag;
 
 	/** 1 if team 1 is serving, 2 if team 2 is serving */
 	public byte teamServing;
@@ -112,6 +115,8 @@ public class TileEntityGameManager extends TileEntity {
 		positionOffsetsMap = new HashMap<Integer, List<Vec3>>();
 		team1PositionMap = new HashMap<Integer, Integer>();
 		team2PositionMap = new HashMap<Integer, Integer>();
+		rotateTeamFlag = -1;
+		team1Score = team2Score = 0;
 
 		// Set the offsets
 		positionOffsetsMap = PositionHelper.setOffsets();
@@ -387,6 +392,7 @@ public class TileEntityGameManager extends TileEntity {
 		team2 = getList(nbt.getIntArray("Team2IDs"));
 		team1Score = nbt.getShort("Team1Score");
 		team2Score = nbt.getShort("Team2Score");
+		rotateTeamFlag = nbt.getByte("RotateTeamFlag");
 
 		int count = 0;
 		Iterator it = nbt.getCompoundTag("playerMapCompound").getTags().iterator();
@@ -406,10 +412,11 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setIntArray("ActiveIDs", Ints.toArray(activeIDs));
 		nbt.setIntArray("Team1IDs", Ints.toArray(team1));
 		nbt.setIntArray("Team2IDs", Ints.toArray(team2));
-		nbt.setByte("GameState", this.gameState);
+		nbt.setByte("GameState", gameState);
 		nbt.setShort("Team1Score", team1Score);
 		nbt.setShort("Team2Score", team2Score);
-
+		nbt.setByte("RotateTeamFlag", rotateTeamFlag);
+		
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 
 		int count = 0;
@@ -560,9 +567,14 @@ public class TileEntityGameManager extends TileEntity {
 	 * @param ball Volleyball entity reference
 	 */
 	public void onRoundEnd(int side, EntityVolleyball ball) {
+		// Update the game state to END_ROUND, do not sync
 		this.updateGameState(GameStates.END_ROUND, false);
+		
+		// Update the game score, do not sync
 		this.onScore(side, ball, false);
 		
+		// Update the game state to PRE_SERVE, effectively preparing for next round, DO sync
+		this.updateGameState(GameStates.PRE_SERVE, true);
 	}
 
 	/**
@@ -573,12 +585,13 @@ public class TileEntityGameManager extends TileEntity {
 		if (side == 1) {
 			this.team2Score++;
 			if (this.getTeam(ball.getHitter().entityId) == 1) {
-				//TODO: rotate team 2
+				updateRotateFlag((byte)2, false);
 			}
 		} else
 			if (side == 2) {
+				this.team1Score++;
 				if (this.getTeam(ball.getHitter().entityId) == 2) {
-					//TODO: rotate team 1
+					updateRotateFlag((byte)1, false);
 				}
 			} else {
 				if (this.getTeam(ball.getHitter().entityId) == 1) {
@@ -586,6 +599,18 @@ public class TileEntityGameManager extends TileEntity {
 				} else
 					this.team1Score++;
 			}
+	}
+	
+	/**
+	 * Update the flag that determines which team should be rotated, if any
+	 * @param flag new flag to set
+	 * @param shouldSync Should this method sync with the client?
+	 */
+	public void updateRotateFlag(byte flag, boolean shouldSync) {
+		this.rotateTeamFlag = flag;
+		
+		if (shouldSync)
+			this.sync();
 	}
 
 	/**
@@ -612,6 +637,61 @@ public class TileEntityGameManager extends TileEntity {
 			System.err.println("Ball is off the court :(");
 		}
 	}
+	
+	/**
+	 * Gets a volleyball for serving, injects the coords hash into it for later use
+	 * @return A volleyball item with injected NBT
+	 */
+	public ItemStack getVolleyballItem() {
+		ItemStack vball = new ItemStack(SUItems.volleyball);
+		vball.stackTagCompound = new NBTTagCompound();
+		vball.stackTagCompound.setInteger("courtX", xCoord);
+		vball.stackTagCompound.setInteger("courtY", yCoord);
+		vball.stackTagCompound.setInteger("courtZ", zCoord);
+
+		return vball;
+	}
+	
+	/**
+	 * Rotate all members of a team to their next position(s)
+	 * @param team Team to rotate the members of
+	 */
+	public void rotateTeam(byte team) {
+		if (team == -1)
+			return;
+		
+		Iterator<Integer> it = null;
+		
+		if (team == 1)
+			it = this.team1PositionMap.keySet().iterator();
+		else
+			if (team == 2) {
+				it = this.team2PositionMap.keySet().iterator();
+			}
+		
+		if (it == null)
+			return;
+
+		while (it.hasNext()) {
+			Integer id = it.next();
+
+			if (team == 1) {
+				int value = this.team1PositionMap.get(id);
+				this.team1PositionMap.put(id, (value + 1) % this.team1.size());
+			} else
+				if (team == 2) {
+					int value = this.team2PositionMap.get(id);
+					this.team2PositionMap.put(id, (value + 1) % this.team2.size());
+				}
+		}		
+	}
+	
+	/**
+	 * Update the player positions based on the current values in the team position maps.
+	 */
+	public void updatePlayerPositions() {
+		
+	}
 
 	/**
 	 * Runs the game loop
@@ -635,20 +715,13 @@ public class TileEntityGameManager extends TileEntity {
 
 			//}
 		}
-	}
-
-	/**
-	 * Gets a volleyball for serving, injects the coords hash into it for later use
-	 * @return A volleyball item with injected NBT
-	 */
-	public ItemStack getVolleyballItem() {
-		ItemStack vball = new ItemStack(SUItems.volleyball);
-		vball.stackTagCompound = new NBTTagCompound();
-		vball.stackTagCompound.setInteger("courtX", xCoord);
-		vball.stackTagCompound.setInteger("courtY", yCoord);
-		vball.stackTagCompound.setInteger("courtZ", zCoord);
-
-		return vball;
+		
+		if (isGameState(GameStates.PRE_SERVE)) {
+			if (rotateTeamFlag != -1) {
+				rotateTeam(rotateTeamFlag);
+				updatePlayerPositions();
+			}
+		}
 	}
 
 }
