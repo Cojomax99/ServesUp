@@ -73,6 +73,18 @@ public class TileEntityGameManager extends TileEntity {
 
 	/** 1 if team 1 is serving, 2 if team 2 is serving */
 	public byte teamServing;
+	
+	/** 0 for Regulation, 1 for Beach Volleyball */
+	public byte gameType;
+	
+	/** Score to play to */
+	public short finalScore;
+	
+	/** Name of team 1 */
+	public String team1Name;
+	
+	/** Name of team 2 */
+	public String team2Name;
 
 	/** List of entity ids of active players */
 	public List<Integer> activeIDs;
@@ -103,6 +115,9 @@ public class TileEntityGameManager extends TileEntity {
 
 	/** Height offset for rendering */
 	private static final double HEIGHT_OFFSET = 1.01;
+
+	/** The Regulation score to play to */
+	public static final short REGULATION_SCORE = 25;
 
 	public int minX = Integer.MIN_VALUE, minZ = Integer.MIN_VALUE, maxX = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
 
@@ -393,6 +408,8 @@ public class TileEntityGameManager extends TileEntity {
 		team1Score = nbt.getShort("Team1Score");
 		team2Score = nbt.getShort("Team2Score");
 		rotateTeamFlag = nbt.getByte("RotateTeamFlag");
+		gameType = nbt.getByte("GameType");
+		finalScore = nbt.getShort("FinalScore");
 
 		int count = 0;
 		Iterator it = nbt.getCompoundTag("playerMapCompound").getTags().iterator();
@@ -416,6 +433,8 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setShort("Team1Score", team1Score);
 		nbt.setShort("Team2Score", team2Score);
 		nbt.setByte("RotateTeamFlag", rotateTeamFlag);
+		nbt.setByte("GameType", gameType);
+		nbt.setShort("FinalScore", finalScore);
 
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 

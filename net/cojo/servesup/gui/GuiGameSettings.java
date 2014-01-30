@@ -3,12 +3,15 @@ package net.cojo.servesup.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.cojo.servesup.packets.PacketHelper;
+import net.cojo.servesup.tileentity.TileEntityGameManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.nbt.NBTTagCompound;
 
 import org.lwjgl.input.Keyboard;
 
@@ -33,8 +36,8 @@ public class GuiGameSettings extends GuiScreen {
 	List<String> team1;
 	List<String> team2;
 
-//	GuiPlayerSlot team1Slot;
-//	GuiPlayerSlot team2Slot;
+	//	GuiPlayerSlot team1Slot;
+	//	GuiPlayerSlot team2Slot;
 
 	String selectedName;
 
@@ -62,11 +65,28 @@ public class GuiGameSettings extends GuiScreen {
 		Keyboard.enableRepeatEvents(true);
 		addButtons();
 		addTextFields();
-	/*	this.team1Slot = new GuiPlayerSlot(this, (int)(width / 2) - 50, 1);
+		/*	this.team1Slot = new GuiPlayerSlot(this, (int)(width / 2) - 50, 1);
 		this.team1Slot.registerScrollButtons(7, 8);
 
 		this.team2Slot = new GuiPlayerSlot(this, (int)(width / 2) + 50, 2);
 		this.team2Slot.registerScrollButtons(17, 18);*/
+	}
+
+
+	@Override
+	public void actionPerformed(GuiButton button) {
+		if (button.id == 2000) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			try {
+				nbt.setShort("FinalScore", score1.checked ? TileEntityGameManager.REGULATION_SCORE : Short.parseShort(this.customScore.getText()));
+				nbt.setByte("GameMode", this.check1.checked ? (byte)0 : (byte)1);
+				nbt.setString("Team1Name", tf_team1.getText().length() > 0 ? tf_team1.getText() : "Team 1");
+				nbt.setString("Team2Name", tf_team2.getText().length() > 0 ? tf_team2.getText() : "Team 2");
+				PacketHelper.sendClientPacket(PacketHelper.createPacketForTEntCommand(te, nbt));
+			} catch (NumberFormatException nfe) {
+				Minecraft.getMinecraft().thePlayer.addChatMessage("Game Score must be an integer!");
+			}
+		}
 	}
 
 	private void addTextFields() {
@@ -75,7 +95,7 @@ public class GuiGameSettings extends GuiScreen {
 		this.customScore.setMaxStringLength(4);
 		this.customScore.setEnableBackgroundDrawing(false);
 		this.customScore.setFocused(false);
-		this.customScore.setText("Poop");
+		this.customScore.setText("0");
 		this.customScore.setCanLoseFocus(true);
 
 		tf_team1 = new GuiTextField(this.fontRenderer, 42, score2.yPosition + 70, 80, 13);
@@ -102,7 +122,7 @@ public class GuiGameSettings extends GuiScreen {
 		this.tf_team2.mouseClicked(par1, par2, par3);
 
 		super.mouseClicked(par1, par2, par3);
-		
+
 		if (check1.isHovered(par1, par2)) {
 			if (check1.checked)
 				check2.checked = false;
@@ -112,7 +132,7 @@ public class GuiGameSettings extends GuiScreen {
 					check1.checked = false;
 			}
 		}
-		
+
 		if (check1.isHovered(par1, par2)) {
 			check1.checked = true;
 		} else {
@@ -120,7 +140,7 @@ public class GuiGameSettings extends GuiScreen {
 				check2.checked = true;
 			}
 		}
-		
+
 		if (score1.isHovered(par1, par2)) {
 			if (score1.checked)
 				score2.checked = false;
@@ -130,7 +150,7 @@ public class GuiGameSettings extends GuiScreen {
 					score1.checked = false;
 			}
 		}
-		
+
 		if (score1.isHovered(par1, par2)) {
 			score1.checked = true;
 		} else {
@@ -147,8 +167,8 @@ public class GuiGameSettings extends GuiScreen {
 		this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
 
 		try {
-		//	this.team1Slot.drawScreen(i, j, f);
-		//	this.team2Slot.drawScreen(i, j, f);
+			//	this.team1Slot.drawScreen(i, j, f);
+			//	this.team2Slot.drawScreen(i, j, f);
 
 			// Draw border around textbox, then draw textbox
 			this.drawRect(score2.xPosition + 11, score2.yPosition + 18, score2.xPosition + 43, score2.yPosition + 19, 0xffffffff);
@@ -180,10 +200,10 @@ public class GuiGameSettings extends GuiScreen {
 
 			this.fontRenderer.drawStringWithShadow("Team 1 Name:", 47, score2.yPosition + 50, 0xffffff);
 			this.fontRenderer.drawStringWithShadow("Team 2 Name:", width - 113, score2.yPosition + 50, 0xffffff);
-			
+
 			this.fontRenderer.drawStringWithShadow("Team 1", (int)(width / 2) + 10, 20, 0xaa00aa);
 			this.fontRenderer.drawStringWithShadow("Team 2", (int)(width / 2) + 90, 20, 0xffaa00);
-			
+
 			drawPlayerNames();
 
 			this.customScore.drawTextBox();
@@ -195,12 +215,12 @@ public class GuiGameSettings extends GuiScreen {
 
 		super.drawScreen(i,j,f);
 	}
-	
+
 	private void drawPlayerNames() {
 		for (int i = 0; i < team1.size(); i++) {
 			this.fontRenderer.drawStringWithShadow(team1.get(i), (int)(width / 2) + 10, 35 + 20 * i, 0xffffff);
 		}
-		
+
 		for (int i = 0; i < team2.size(); i++) {
 			this.fontRenderer.drawStringWithShadow(team2.get(i), (int)(width / 2) + 90, 35 + 20 * i, 0xffffff);
 		}
