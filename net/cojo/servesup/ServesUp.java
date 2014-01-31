@@ -3,6 +3,7 @@ package net.cojo.servesup;
 import net.cojo.servesup.blocks.SUBlocks;
 import net.cojo.servesup.entities.SUEntityRegistry;
 import net.cojo.servesup.items.SUItems;
+import net.cojo.servesup.packets.SUPacketHandler;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -18,7 +19,7 @@ import cpw.mods.fml.common.network.NetworkMod;
  * @author Cojo
  *
  */
-@NetworkMod(channels = { "ServesUp" }, clientSideRequired = true, serverSideRequired = false)
+@NetworkMod(channels = { "VBall_Settings" }, clientSideRequired = true, serverSideRequired = false, packetHandler = SUPacketHandler.class)
 @Mod(modid = ModInfo.MODID, name = ModInfo.NAME, version = ModInfo.VERSION)
 public class ServesUp {
 	

@@ -44,7 +44,7 @@ public class PacketHelper {
 		}
 
 		Packet250CustomPayload pkt = new Packet250CustomPayload();
-		pkt.channel = "VBall_GameSettings";
+		pkt.channel = "VBall_Settings";
 		pkt.data = bos.toByteArray();
 		pkt.length = bos.size();
 

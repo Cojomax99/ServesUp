@@ -73,16 +73,16 @@ public class TileEntityGameManager extends TileEntity {
 
 	/** 1 if team 1 is serving, 2 if team 2 is serving */
 	public byte teamServing;
-	
+
 	/** 0 for Regulation, 1 for Beach Volleyball */
 	public byte gameType;
-	
+
 	/** Score to play to */
 	public short finalScore;
-	
+
 	/** Name of team 1 */
 	public String team1Name;
-	
+
 	/** Name of team 2 */
 	public String team2Name;
 
@@ -132,6 +132,9 @@ public class TileEntityGameManager extends TileEntity {
 		team2PositionMap = new HashMap<Integer, Integer>();
 		rotateTeamFlag = -1;
 		team1Score = team2Score = 0;
+		team1Name = "Team 1";
+		team2Name = "Team 2";
+		gameState = -1;
 
 		// Set the offsets
 		positionOffsetsMap = PositionHelper.setOffsets();
@@ -255,7 +258,7 @@ public class TileEntityGameManager extends TileEntity {
 
 		// If there are new ids in the list, sync the list
 		if (numPreActiveIDs < activeIDs.size()) {
-			sync();
+			syncSave();
 		}
 	}
 
@@ -376,24 +379,56 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	@Override
 	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt) {
-		this.readFromNBTPacket(pkt.data);
+		// Used to differentiate the two types of packets. One of which saves with the world, the other just floats around
+		if ("RegularSave".equals(pkt.data.getName())) {
+			this.readFromNBT(pkt.data);
+		} else {
+			this.readFromNBTPacket(pkt.data);
+		}
 	}
 
 	/**
-	 * A packet for syncing data client <-> server
+	 * A packet for syncing data client <-> server using custom NBT that does not save on quit
 	 */
 	@Override
 	public Packet getDescriptionPacket() {
 		NBTTagCompound var1 = new NBTTagCompound();
 		this.writeToNBTPacket(var1);
 		return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, var1);
+	}
+
+	/**
+	 * A packet for syncing data client <-> server using the built-in NBT
+	 * @return
+	 */
+	public Packet getDescriptionPacketSave() {
+		NBTTagCompound var1 = new NBTTagCompound();
+		var1.setName("RegularSave");
+		this.writeToNBT(var1);
+		return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, var1);
 	}	
 
 	/**
-	 * Sync the data so all clients get the same data
+	 * Sync the data so all clients get the same data (does not save to world)
 	 */
 	public void sync() {
 		PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(), worldObj.provider.dimensionId);
+	}
+
+	/**
+	 * Sync the data so all clients get the same data (saves to world)
+	 */
+	public void syncSave() {
+		PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacketSave(), worldObj.provider.dimensionId);
+	}
+
+	public void handleClientSentNBT(String username, NBTTagCompound nbt) {
+		gameType = nbt.getByte("GameType");
+		finalScore = nbt.getShort("FinalScore");
+		team1Name = nbt.getString("Team1Name");
+		team2Name = nbt.getString("Team2Name");
+		isCourtBuilt = nbt.getBoolean("CourtBuilt");
+		sync();
 	}
 
 	/**
@@ -410,6 +445,9 @@ public class TileEntityGameManager extends TileEntity {
 		rotateTeamFlag = nbt.getByte("RotateTeamFlag");
 		gameType = nbt.getByte("GameType");
 		finalScore = nbt.getShort("FinalScore");
+		team1Name = nbt.getString("Team1Name");
+		team2Name = nbt.getString("Team2Name");
+		isCourtBuilt = nbt.getBoolean("CourtBuilt");
 
 		int count = 0;
 		Iterator it = nbt.getCompoundTag("playerMapCompound").getTags().iterator();
@@ -435,6 +473,9 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setByte("RotateTeamFlag", rotateTeamFlag);
 		nbt.setByte("GameType", gameType);
 		nbt.setShort("FinalScore", finalScore);
+		nbt.setString("Team1Name", team1Name);
+		nbt.setString("Team2Name", team2Name);
+		nbt.setBoolean("CourtBuilt", isCourtBuilt);
 
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 
@@ -472,7 +513,7 @@ public class TileEntityGameManager extends TileEntity {
 		this.minZ = MathHelper.floor_double(data.minZ);
 		this.maxZ = MathHelper.floor_double(data.maxZ);
 		this.isCourtBuilt = true;
-		sync();
+		syncSave();
 	}
 
 	public CourtData getCourtData() {
@@ -492,7 +533,7 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	public void rotate() {
 		orientation = orientation < 3 ? orientation + 1 : 0;
-		sync();		
+		syncSave();		
 	}
 
 	/**
@@ -501,7 +542,7 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	public void setOrientation(int val) {
 		orientation = val < 0 ? 0 : val > 3 ? 3 : val;
-		sync();
+		syncSave();
 	}
 
 	/**
@@ -742,7 +783,7 @@ public class TileEntityGameManager extends TileEntity {
 		//TODO use team to determine which orientation to set player as
 		player.setLocationAndAngles(coords.xCoord, coords.yCoord, coords.zCoord, 0, 0);
 	}
-	
+
 	/**
 	 * Set the game state
 	 * @param state Game state
@@ -750,7 +791,7 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	public void setGameState(byte state, boolean sync) {
 		this.gameState = state;
-		
+
 		if (sync)
 			sync();
 	}
@@ -780,9 +821,9 @@ public class TileEntityGameManager extends TileEntity {
 
 		if (isGameState(GameStates.PRE_SERVE)) {
 			if (rotateTeamFlag != -1) {
-				rotateTeam(rotateTeamFlag);
-				updatePlayerPositions();
-				setGameState(GameStates.SERVING, true);
+				//	rotateTeam(rotateTeamFlag);
+				//	updatePlayerPositions();
+				//	setGameState(GameStates.SERVING, true);
 			}
 		}
 	}

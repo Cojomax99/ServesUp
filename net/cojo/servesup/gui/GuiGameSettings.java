@@ -40,11 +40,14 @@ public class GuiGameSettings extends GuiScreen {
 	//	GuiPlayerSlot team2Slot;
 
 	String selectedName;
+	
+	TileEntityGameManager court;
 
-	public GuiGameSettings(int orientation, List<String> team1, List<String> team2) {
+	public GuiGameSettings(TileEntityGameManager court, int orientation, List<String> team1, List<String> team2) {
 		this.orientation = orientation;
 		this.team1 = new ArrayList<String>(team1);
 		this.team2 = new ArrayList<String>(team2);
+		this.court = court;
 	}
 
 	public void setSelectedName(String name) {
@@ -82,7 +85,10 @@ public class GuiGameSettings extends GuiScreen {
 				nbt.setByte("GameMode", this.check1.checked ? (byte)0 : (byte)1);
 				nbt.setString("Team1Name", tf_team1.getText().length() > 0 ? tf_team1.getText() : "Team 1");
 				nbt.setString("Team2Name", tf_team2.getText().length() > 0 ? tf_team2.getText() : "Team 2");
-				PacketHelper.sendClientPacket(PacketHelper.createPacketForTEntCommand(te, nbt));
+				nbt.setBoolean("CourtBuilt", Boolean.valueOf(true));
+				PacketHelper.sendClientPacket(PacketHelper.createPacketForTEntCommand(court, nbt));
+				System.out.println("Made it to send packet : D");
+				this.mc.thePlayer.closeScreen();
 			} catch (NumberFormatException nfe) {
 				Minecraft.getMinecraft().thePlayer.addChatMessage("Game Score must be an integer!");
 			}
