@@ -40,6 +40,10 @@ public class PositionHelper {
 		Map<Integer, List<Vec3>> positionOffsetsMap = new HashMap<Integer, List<Vec3>>();
 		
 		List team = new ArrayList<Vec3>();
+		team.add(Vec3.createVectorHelper(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
+		positionOffsetsMap.put(0, team);
+		
+		team = new ArrayList<Vec3>();
 		team.add(Vec3.createVectorHelper(0.5, 0, 0));
 		positionOffsetsMap.put(1, team);
 

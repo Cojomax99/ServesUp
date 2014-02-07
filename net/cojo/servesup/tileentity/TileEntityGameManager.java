@@ -152,9 +152,9 @@ public class TileEntityGameManager extends TileEntity {
 
 		vecRel.rotateAroundY((float) (Math.toRadians(getDegreeOrientation())));
 		Vec3 vecNet = Vec3.createVectorHelper(vec.xCoord + vecRel.xCoord, vec.yCoord + vecRel.yCoord, vec.zCoord + vecRel.zCoord);
-		Vec3 gridPos = positionOffsetsMap.get(/*team == 1 ? team1.size() + 3 : team2.size() + 3*/6).get(pos);
+		Vec3 gridPos = positionOffsetsMap.get(team == 1 ? team1.size(): team2.size()).get(pos);
 		Vec3 vecRelPlayer1 = Vec3.createVectorHelper(gridPos.xCoord * ((CourtBuilder.LENGTH / 2) + 0.5), 0, gridPos.zCoord * (MathHelper.floor_double(CourtBuilder.WIDTH / 2) + 2.5));
-		if (team == 1)
+		if (team == 2)
 			vecRelPlayer1.rotateAroundY((float) Math.toRadians(getDegreeOrientation() - 90));
 		else
 			vecRelPlayer1.rotateAroundY((float) Math.toRadians(getDegreeOrientation() + 90));
@@ -268,7 +268,13 @@ public class TileEntityGameManager extends TileEntity {
 	 * @return Get the team of a player with a given entity id
 	 */
 	public int getTeam(Integer entID) {
-		return playerTeamMap.get(entID);
+		try {
+			return playerTeamMap.get(entID);
+		} catch (NullPointerException npe) {
+			System.err.println("herp");
+		}
+
+		return -1;
 	}
 
 	/**
@@ -642,6 +648,11 @@ public class TileEntityGameManager extends TileEntity {
 	 * @param side Side of the court the ball landed on
 	 */
 	public void onScore(int side, EntityVolleyball ball, boolean shouldSync) {
+		if (ball.getHitter() == null) {
+			return;
+		}
+		
+		
 		if (side == 1) {
 			this.team2Score++;
 			if (this.getTeam(ball.getHitter().entityId) == 1) {

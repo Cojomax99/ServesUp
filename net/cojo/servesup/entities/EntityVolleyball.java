@@ -2,6 +2,7 @@ package net.cojo.servesup.entities;
 
 import java.util.List;
 
+import net.cojo.servesup.GameStates;
 import net.cojo.servesup.physics.BallPhysicsHelper;
 import net.cojo.servesup.tileentity.TileEntityGameManager;
 import net.minecraft.entity.Entity;
@@ -176,7 +177,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		this.lastTickPosX = this.posX;
 		this.lastTickPosY = this.posY;
 		this.lastTickPosZ = this.posZ;
-		
+
 		super.onUpdate();
 		//System.out.println("return");
 
@@ -186,7 +187,7 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX, this.posY, this.posZ);
 		vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
-		
+
 
 		if (movingobjectposition != null) {
 			vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
@@ -253,8 +254,8 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 			if (movingobjectposition.typeOfHit == EnumMovingObjectType.TILE/* && this.worldObj.getBlockId(movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ) == Block.portal.blockID*/)
 			{
 				//	this.setInPortal();
-		//		System.out.println("hit ground");
-			//	this.onImpact(movingobjectposition);
+				//		System.out.println("hit ground");
+				//	this.onImpact(movingobjectposition);
 			}
 			else
 			{
@@ -310,11 +311,11 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		this.motionY -= (double)f3;
 		//this.setPosition(this.posX, this.posY, this.posZ);
 		this.moveEntity(motionX, motionY, motionZ);
-		
+
 		boolean onGround2 = this.posY == MathHelper.floor_double(courtY);
 
 		if (onGround) {
-		//	System.out.println("hueoawueroauwoeriuawoerui");
+			//	System.out.println("hueoawueroauwoeriuawoerui");
 			int i = this.worldObj.getBlockId(this.xTile, this.yTile - 1, this.zTile);
 
 			if (i == this.inTile) {
@@ -325,8 +326,10 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 					if (te != null && te instanceof TileEntityGameManager) {
 						TileEntityGameManager court = (TileEntityGameManager)te;
 
-						court.onBallImpact(this);
-						setDead();
+						if (court.gameState != GameStates.PRE_GAME) {
+							court.onBallImpact(this);
+							setDead();
+						}
 					}
 				}
 				return;
@@ -335,13 +338,13 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 			++this.ticksInAir;
 		}		
 	}
-	
-    /**
-     * returns the bounding box for this entity
-     */
-    public AxisAlignedBB getBoundingBox() {
-        return this.boundingBox;
-    }
+
+	/**
+	 * returns the bounding box for this entity
+	 */
+	public AxisAlignedBB getBoundingBox() {
+		return this.boundingBox;
+	}
 
 	//@Override
 	protected void onImpact(MovingObjectPosition movingobjectposition) {
