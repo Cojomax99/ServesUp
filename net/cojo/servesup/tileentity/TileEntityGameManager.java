@@ -727,6 +727,10 @@ public class TileEntityGameManager extends TileEntity {
 
 		return vball;
 	}
+	
+	public void rotateTeam(int team) {
+		rotateTeam(team == 0 ? (byte)0 : (byte)1);
+	}
 
 	/**
 	 * Rotate all members of a team to their next position(s)

@@ -204,11 +204,6 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 			float f1 = 0.016666668F * f;
 			GL11.glPushMatrix();
 			GL11.glTranslatef((float)par3 + 0.0F, (float)par5 + 2.5F, (float)par7);
-			
-			//      GL11.glRotatef(-court.ge, 0.0F, 1.0F, 0.0F);
-			//     GL11.glRotatef(this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
-		//	GL11.glRotatef(-Minecraft.getMinecraft().thePlayer.cameraPitch, 0.0F, 1.0F, 0.0F);
-		//	GL11.glRotatef(Minecraft.getMinecraft().thePlayer.cameraYaw, 1.0F, 0.0F, 0.0F);
 			GL11.glRotatef(-rm.playerViewY, 0.0F, 1.0F, 0.0F);
 			GL11.glRotatef(rm.playerViewX, 1.0F, 0.0F, 0.0F);
 			GL11.glNormal3f(0.0F, 1.0F, 0.0F);
