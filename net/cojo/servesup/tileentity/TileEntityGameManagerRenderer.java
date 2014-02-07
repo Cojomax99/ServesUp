@@ -4,6 +4,7 @@ import net.cojo.servesup.court.Overlays;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
@@ -51,14 +52,20 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 					}
 				}
 
-				for (int i = 0; i < court.team2.size(); i++) {
+				for (int i = 0; i < 5/*court.team2.size()*/; i++) {
 					Vec3 vecPl = court.getSpawnPosition(i, 2);
+					
+					if (vecPl == null)
+						continue;
 
 					this.renderLivingLabel(court, "Player "  + i, vecPl.xCoord, vecPl.yCoord, vecPl.zCoord, 0xff0000);
 				}
-/*
-				for (int i = 0; i < court.team1.size(); i++) {
+
+			/*	for (int i = 0; i < court.team1.size(); i++) {
 					Vec3 vecPl = court.getSpawnPosition(i, 1);
+					
+					if (vecPl == null)
+						continue;
 
 					this.renderLivingLabel(court, "Player "  + i, vecPl.xCoord, vecPl.yCoord, vecPl.zCoord, 0xff0000);
 				}*/
@@ -192,19 +199,23 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 	private void renderLivingLabel(TileEntityGameManager court, String par2Str, double par3, double par5, double par7, int par9) {
 		if (true) {
 			FontRenderer fontrenderer = this.getFontRenderer();
+			RenderManager rm = RenderManager.instance;
 			float f = 1.6F;
 			float f1 = 0.016666668F * f;
 			GL11.glPushMatrix();
 			GL11.glTranslatef((float)par3 + 0.0F, (float)par5 + 2.5F, (float)par7);
+			
+			//      GL11.glRotatef(-court.ge, 0.0F, 1.0F, 0.0F);
+			//     GL11.glRotatef(this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
+		//	GL11.glRotatef(-Minecraft.getMinecraft().thePlayer.cameraPitch, 0.0F, 1.0F, 0.0F);
+		//	GL11.glRotatef(Minecraft.getMinecraft().thePlayer.cameraYaw, 1.0F, 0.0F, 0.0F);
+			GL11.glRotatef(-rm.playerViewY, 0.0F, 1.0F, 0.0F);
+			GL11.glRotatef(rm.playerViewX, 1.0F, 0.0F, 0.0F);
 			GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 			GL11.glScalef(-f1, -f1, f1);
 			GL11.glDisable(GL11.GL_LIGHTING);
 			GL11.glDepthMask(false);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
-			//      GL11.glRotatef(-court.ge, 0.0F, 1.0F, 0.0F);
-			//     GL11.glRotatef(this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(-Minecraft.getMinecraft().thePlayer.cameraPitch, 0.0F, 1.0F, 0.0F);
-			GL11.glRotatef(Minecraft.getMinecraft().thePlayer.cameraYaw, 1.0F, 0.0F, 0.0F);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			Tessellator tessellator = Tessellator.instance;

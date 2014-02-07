@@ -148,11 +148,11 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	public Vec3 getSpawnPosition(int pos, int team) {
 		Vec3 vec = Vec3.createVectorHelper(this.xCoord, this.yCoord, this.zCoord + 0.5);
-		Vec3 vecRel = Vec3.createVectorHelper(MathHelper.floor_double(CourtBuilder.WIDTH / 2) + 2.5, 0, 0);
+		Vec3 vecRel = Vec3.createVectorHelper(MathHelper.floor_double(CourtBuilder.WIDTH / 2) + 1.5, 0, 0);
 
 		vecRel.rotateAroundY((float) (Math.toRadians(getDegreeOrientation())));
 		Vec3 vecNet = Vec3.createVectorHelper(vec.xCoord + vecRel.xCoord, vec.yCoord + vecRel.yCoord, vec.zCoord + vecRel.zCoord);
-		Vec3 gridPos = positionOffsetsMap.get(team == 1 ? team1.size(): team2.size()).get(pos);
+		Vec3 gridPos = positionOffsetsMap.get(5/*team == 1 ? team1.size(): team2.size()*/).get(pos);
 		Vec3 vecRelPlayer1 = Vec3.createVectorHelper(gridPos.xCoord * ((CourtBuilder.LENGTH / 2) + 0.5), 0, gridPos.zCoord * (MathHelper.floor_double(CourtBuilder.WIDTH / 2) + 2.5));
 		if (team == 2)
 			vecRelPlayer1.rotateAroundY((float) Math.toRadians(getDegreeOrientation() - 90));
@@ -161,6 +161,11 @@ public class TileEntityGameManager extends TileEntity {
 
 		Vec3 vecPl = Vec3.createVectorHelper(vecNet.xCoord + vecRelPlayer1.xCoord, vecNet.yCoord + vecRelPlayer1.yCoord, vecNet.zCoord + vecRelPlayer1.zCoord);
 
+		// If there is nobody to get the spawn position of, make sure it returns null
+		if (vecRelPlayer1.xCoord == Double.MIN_VALUE || vecRelPlayer1.yCoord == Double.MIN_VALUE || vecRelPlayer1.zCoord == Double.MIN_VALUE) {
+			vecPl = null;
+		}
+		
 		return vecPl;
 	}
 
@@ -769,6 +774,10 @@ public class TileEntityGameManager extends TileEntity {
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
 			Vec3 spawnPos = getSpawnPosition(id, 1);
+			
+			if (spawnPos == null)
+				continue;
+			
 			movePlayer(ent, spawnPos, 1);
 		}
 
@@ -780,6 +789,10 @@ public class TileEntityGameManager extends TileEntity {
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
 			Vec3 spawnPos = getSpawnPosition(id, 2);
+			
+			if (spawnPos == null)
+				continue;
+			
 			movePlayer(ent, spawnPos, 2);
 		}
 	}
