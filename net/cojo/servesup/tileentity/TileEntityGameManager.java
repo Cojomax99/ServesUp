@@ -14,6 +14,7 @@ import net.cojo.servesup.entities.EntityVolleyball;
 import net.cojo.servesup.items.SUItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
@@ -815,7 +816,12 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	private void movePlayer(Entity player, Vec3 coords, int team) {
 		//TODO use team to determine which orientation to set player as
-		player.setLocationAndAngles(coords.xCoord, coords.yCoord + 1, coords.zCoord, 0, 0);
+		
+		if (player instanceof EntityPlayerMP) {
+			((EntityPlayerMP)player).playerNetServerHandler.setPlayerLocation(coords.xCoord, coords.yCoord + 1.0, coords.zCoord, player.rotationYaw, player.rotationPitch);
+		} else {		
+			player.setLocationAndAngles(coords.xCoord, coords.yCoord + 1.0, coords.zCoord, 0, 0);
+		}
 	}
 
 	/**
@@ -844,8 +850,8 @@ public class TileEntityGameManager extends TileEntity {
 
 			if (ent instanceof EntityLivingBase) {
 				EntityLivingBase el = (EntityLivingBase)ent;
-				if (el.getCurrentItemOrArmor(0) == null || el.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID)
-					el.setCurrentItemOrArmor(0, getVolleyballItem());
+		//		if (el.getCurrentItemOrArmor(0) == null || el.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID)
+			//		el.setCurrentItemOrArmor(0, getVolleyballItem());
 			}
 
 			//if (isGameState(GameStates.PRE_SERVE)) {
