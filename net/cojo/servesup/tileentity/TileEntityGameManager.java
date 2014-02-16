@@ -152,7 +152,7 @@ public class TileEntityGameManager extends TileEntity {
 
 		vecRel.rotateAroundY((float) (Math.toRadians(getDegreeOrientation())));
 		Vec3 vecNet = Vec3.createVectorHelper(vec.xCoord + vecRel.xCoord, vec.yCoord + vecRel.yCoord, vec.zCoord + vecRel.zCoord);
-		Vec3 gridPos = positionOffsetsMap.get(5/*team == 1 ? team1.size(): team2.size()*/).get(pos);
+		Vec3 gridPos = positionOffsetsMap.get(team == 1 ? team1.size(): team2.size()).get(pos);
 		Vec3 vecRelPlayer1 = Vec3.createVectorHelper(gridPos.xCoord * ((CourtBuilder.LENGTH / 2) + 0.5), 0, gridPos.zCoord * (MathHelper.floor_double(CourtBuilder.WIDTH / 2) + 2.5));
 		if (team == 2)
 			vecRelPlayer1.rotateAroundY((float) Math.toRadians(getDegreeOrientation() - 90));
@@ -260,6 +260,8 @@ public class TileEntityGameManager extends TileEntity {
 			} else
 				throw new IllegalArgumentException("Somehow a non-entity entity ended up on the volleyball court at game startin team 2!");
 		}
+		
+		this.setGameState(GameStates.PRE_SERVE, false);
 
 		// If there are new ids in the list, sync the list
 		if (numPreActiveIDs < activeIDs.size()) {
@@ -773,11 +775,14 @@ public class TileEntityGameManager extends TileEntity {
 		// First do team 1
 		Iterator<Integer> players = this.team1.iterator();
 
+		// Player position
+		int pos = 0;
+		
 		while (players.hasNext()) {
 			Integer id = players.next();
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
-			Vec3 spawnPos = getSpawnPosition(id, 1);
+			Vec3 spawnPos = getSpawnPosition(pos++, 1);
 			
 			if (spawnPos == null)
 				continue;
@@ -787,12 +792,13 @@ public class TileEntityGameManager extends TileEntity {
 
 		// Now do team 2
 		players = this.team2.iterator();
+		pos = 0;
 
 		while (players.hasNext()) {
 			Integer id = players.next();
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
-			Vec3 spawnPos = getSpawnPosition(id, 2);
+			Vec3 spawnPos = getSpawnPosition(pos++, 2);
 			
 			if (spawnPos == null)
 				continue;
@@ -809,7 +815,7 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	private void movePlayer(Entity player, Vec3 coords, int team) {
 		//TODO use team to determine which orientation to set player as
-		player.setLocationAndAngles(coords.xCoord, coords.yCoord, coords.zCoord, 0, 0);
+		player.setLocationAndAngles(coords.xCoord, coords.yCoord + 1, coords.zCoord, 0, 0);
 	}
 
 	/**
@@ -848,11 +854,12 @@ public class TileEntityGameManager extends TileEntity {
 		}
 
 		if (isGameState(GameStates.PRE_SERVE)) {
-			if (rotateTeamFlag != -1) {
+		//	if (rotateTeamFlag != -1) {
+				System.err.println("here!");
 				//	rotateTeam(rotateTeamFlag);
-				//	updatePlayerPositions();
-				//	setGameState(GameStates.SERVING, true);
-			}
+					updatePlayerPositions();
+					setGameState(GameStates.SERVING, true);
+		//	}
 		}
 	}
 

@@ -11,7 +11,7 @@ public class EntityDummy extends EntityLiving {
 	
 	@Override
 	public void onLivingUpdate() {
-	//	super.onLivingUpdate();
+		super.onLivingUpdate();
 	}
 	
 	@Override
