@@ -21,5 +21,8 @@ public class SUEntityRegistry {
 	public static void init() {
 		EntityRegistry.registerModEntity(EntityVolleyball.class, "Volleyball", entityId++, ServesUp.instance, 64, 3, true);
 		LanguageRegistry.instance().addStringLocalization(String.format("entity.%s." + "Volleyball" + ".name", ModInfo.MODID), "en_US", "Volleyball");
+		
+		EntityRegistry.registerModEntity(EntityDummy.class, "Dummy", entityId++, ServesUp.instance, 64, 3, true);
+		LanguageRegistry.instance().addStringLocalization(String.format("entity.%s." + "Dummy" + ".name", ModInfo.MODID), "en_US", "Dummy");
 	}
 }
