@@ -444,6 +444,11 @@ public class TileEntityGameManager extends TileEntity {
 		PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacketSave(), worldObj.provider.dimensionId);
 	}
 
+	/**
+	 * Handles nbt sent from gui
+	 * @param username Player's username who initiated the game
+	 * @param nbt tag compound associated with the packet
+	 */
 	public void handleClientSentNBT(String username, NBTTagCompound nbt) {
 		gameType = nbt.getByte("GameType");
 		finalScore = nbt.getShort("FinalScore");
@@ -580,6 +585,10 @@ public class TileEntityGameManager extends TileEntity {
 		return temp;
 	}
 
+	/**
+	 * Sets the court's persistent data
+	 * @param data bounding box of the court
+	 */
 	public void setCourtData(AxisAlignedBB data) {
 		this.minX = MathHelper.floor_double(data.minX);
 		this.maxX = MathHelper.floor_double(data.maxX);
@@ -589,6 +598,10 @@ public class TileEntityGameManager extends TileEntity {
 		syncSave();
 	}
 
+	/**
+	 * Getter for the court data
+	 * @return Court data
+	 */
 	public CourtData getCourtData() {
 		return new CourtData(minX, maxX, this.yCoord, minZ, maxZ);
 	}
