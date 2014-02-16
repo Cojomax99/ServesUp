@@ -241,6 +241,9 @@ public class TileEntityGameManager extends TileEntity {
 		List e_team2 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamTwoBounds());
 
 		int numPreActiveIDs = activeIDs.size();
+		
+		// Player spawn position
+		int pos = 0;
 
 		for (Object obj : e_team1) {
 			if (obj instanceof Entity) {
@@ -248,9 +251,13 @@ public class TileEntityGameManager extends TileEntity {
 				activeIDs.add(((Entity) obj).entityId);
 				team1.add(((Entity) obj).entityId);
 				this.playerTeamMap.put(((Entity) obj).entityId, 1);
+				this.team1PositionMap.put(((Entity)obj).entityId, pos++);
 			} else
 				throw new IllegalArgumentException("Somehow a non-entity entity ended up on the volleyball court at game start in team 1!");
 		}
+		
+		// Reset position counter
+		pos = 0;
 
 		for (Object obj : e_team2) {
 			if (obj instanceof Entity) {
@@ -258,11 +265,12 @@ public class TileEntityGameManager extends TileEntity {
 				activeIDs.add(((Entity) obj).entityId);
 				team2.add(((Entity) obj).entityId);
 				this.playerTeamMap.put(((Entity) obj).entityId, 2);
+				this.team2PositionMap.put(((Entity)obj).entityId, pos++);
 			} else
 				throw new IllegalArgumentException("Somehow a non-entity entity ended up on the volleyball court at game startin team 2!");
 		}
 		
-		this.setGameState(GameStates.PRE_SERVE, false);
+	//	this.setGameState(GameStates.PRE_SERVE, false);
 
 		// If there are new ids in the list, sync the list
 		if (numPreActiveIDs < activeIDs.size()) {
@@ -442,6 +450,7 @@ public class TileEntityGameManager extends TileEntity {
 		team1Name = nbt.getString("Team1Name");
 		team2Name = nbt.getString("Team2Name");
 		isCourtBuilt = nbt.getBoolean("CourtBuilt");
+		gameState = nbt.getByte("GameState");
 		sync();
 	}
 
@@ -470,6 +479,24 @@ public class TileEntityGameManager extends TileEntity {
 			count++;
 			NBTTagInt data = (NBTTagInt)it.next();
 			playerTeamMap.put(Integer.valueOf(data.getName()), data.data);
+		}
+		
+		count = 0;
+		it = nbt.getCompoundTag("team1PosCompound").getTags().iterator();
+		
+		while (it.hasNext()) {
+			count++;
+			NBTTagInt data = (NBTTagInt)it.next();
+			this.team1PositionMap.put(Integer.valueOf(data.getName()), data.data);
+		}
+		
+		count = 0;
+		it = nbt.getCompoundTag("team2PosCompound").getTags().iterator();
+		
+		while (it.hasNext()) {
+			count++;
+			NBTTagInt data = (NBTTagInt)it.next();
+			this.team2PositionMap.put(Integer.valueOf(data.getName()), data.data);
 		}
 	}
 
@@ -503,7 +530,39 @@ public class TileEntityGameManager extends TileEntity {
 			playerMapCompound.setInteger("" + key, value);
 		}
 
-		nbt.setCompoundTag("playerMapCompound", playerMapCompound);	
+		nbt.setCompoundTag("playerMapCompound", playerMapCompound);
+		
+		
+		
+		NBTTagCompound team1MapCompound = new NBTTagCompound();
+
+		count = 0;
+		it = this.team1PositionMap.entrySet().iterator();
+		while (it.hasNext()) {
+			count++;
+			Map.Entry pairs = (Map.Entry)it.next();
+			int key = (Integer)pairs.getKey();
+			int value = (Integer)pairs.getValue();
+			team1MapCompound.setInteger("" + key, value);
+		}
+
+		nbt.setCompoundTag("team1PosCompound", team1MapCompound);	
+		
+		
+		
+		NBTTagCompound team2MapCompound = new NBTTagCompound();
+
+		count = 0;
+		it = this.team2PositionMap.entrySet().iterator();
+		while (it.hasNext()) {
+			count++;
+			Map.Entry pairs = (Map.Entry)it.next();
+			int key = (Integer)pairs.getKey();
+			int value = (Integer)pairs.getValue();
+			team2MapCompound.setInteger("" + key, value);
+		}
+
+		nbt.setCompoundTag("team2PosCompound", team2MapCompound);
 	}
 
 	/**
@@ -547,7 +606,7 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	public void rotate() {
 		orientation = orientation < 3 ? orientation + 1 : 0;
-		syncSave();		
+		syncSave();
 	}
 
 	/**
@@ -732,7 +791,7 @@ public class TileEntityGameManager extends TileEntity {
 	}
 	
 	public void rotateTeam(int team) {
-		rotateTeam(team == 0 ? (byte)0 : (byte)1);
+		rotateTeam(team == 1 ? (byte)1 : (byte)2);
 	}
 
 	/**
@@ -751,22 +810,33 @@ public class TileEntityGameManager extends TileEntity {
 			if (team == 2) {
 				it = this.team2PositionMap.keySet().iterator();
 			}
+		
+		System.out.println("here 1");
 
 		if (it == null)
 			return;
+		
+		System.out.println("here 2");
 
 		while (it.hasNext()) {
 			Integer id = it.next();
+			System.out.println("here 4");
 
 			if (team == 1) {
 				int value = this.team1PositionMap.get(id);
 				this.team1PositionMap.put(id, (value + 1) % this.team1.size());
+				System.out.printf("Value was %d, is now %d\n", value, team1PositionMap.get(id));
 			} else
 				if (team == 2) {
 					int value = this.team2PositionMap.get(id);
 					this.team2PositionMap.put(id, (value + 1) % this.team2.size());
+					System.out.printf("Value was %d, is now %d\n", value, team2PositionMap.get(id));
 				}
-		}		
+		}
+		
+		System.out.println("here 3");
+		
+		this.sync();
 	}
 
 	/**
@@ -783,7 +853,8 @@ public class TileEntityGameManager extends TileEntity {
 			Integer id = players.next();
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
-			Vec3 spawnPos = getSpawnPosition(pos++, 1);
+			//Vec3 spawnPos = getSpawnPosition(pos++, 1);
+			Vec3 spawnPos = getSpawnPosition(team1PositionMap.get(id), 1);
 			
 			if (spawnPos == null)
 				continue;
@@ -799,7 +870,8 @@ public class TileEntityGameManager extends TileEntity {
 			Integer id = players.next();
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
-			Vec3 spawnPos = getSpawnPosition(pos++, 2);
+		//	Vec3 spawnPos = getSpawnPosition(pos++, 2);
+			Vec3 spawnPos = getSpawnPosition(team2PositionMap.get(id), 2);
 			
 			if (spawnPos == null)
 				continue;

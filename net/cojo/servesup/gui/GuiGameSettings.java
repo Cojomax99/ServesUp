@@ -3,6 +3,7 @@ package net.cojo.servesup.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.cojo.servesup.GameStates;
 import net.cojo.servesup.packets.PacketHelper;
 import net.cojo.servesup.tileentity.TileEntityGameManager;
 import net.minecraft.client.Minecraft;
@@ -86,6 +87,7 @@ public class GuiGameSettings extends GuiScreen {
 				nbt.setString("Team1Name", tf_team1.getText().length() > 0 ? tf_team1.getText() : "Team 1");
 				nbt.setString("Team2Name", tf_team2.getText().length() > 0 ? tf_team2.getText() : "Team 2");
 				nbt.setBoolean("CourtBuilt", Boolean.valueOf(true));
+				nbt.setByte("GameState", GameStates.PRE_SERVE);
 				PacketHelper.sendClientPacket(PacketHelper.createPacketForTEntCommand(court, nbt));
 				System.out.println("Made it to send packet : D");
 				this.mc.thePlayer.closeScreen();
