@@ -27,4 +27,28 @@ public class GameStates {
 	
 	/** Represents the time after a game has finished and a new one has not been started */
 	public static final byte POST_GAME = 5;
+	
+	/**
+	 * Get the verbose name for a game state
+	 * @param state Game state
+	 * @return verbose name
+	 */
+	public static String stateName(byte state) {
+		switch (state) {
+		case 0:
+			return "PRE_GAME";
+		case 1:
+			return "PRE_SERVE";
+		case 2:
+			return "SERVING";
+		case 3:
+			return "IN_GAME";
+		case 4:
+			return "END_ROUND";
+		case 5:
+			return "POST_GAME";
+		default:
+			return null;
+		}
+	}
 }

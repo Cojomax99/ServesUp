@@ -166,7 +166,7 @@ public class TileEntityGameManager extends TileEntity {
 		if (vecRelPlayer1.xCoord == Double.MIN_VALUE || vecRelPlayer1.yCoord == Double.MIN_VALUE || vecRelPlayer1.zCoord == Double.MIN_VALUE) {
 			vecPl = null;
 		}
-		
+
 		return vecPl;
 	}
 
@@ -241,7 +241,7 @@ public class TileEntityGameManager extends TileEntity {
 		List e_team2 = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, this.getTeamTwoBounds());
 
 		int numPreActiveIDs = activeIDs.size();
-		
+
 		// Player spawn position
 		int pos = 0;
 
@@ -255,7 +255,7 @@ public class TileEntityGameManager extends TileEntity {
 			} else
 				throw new IllegalArgumentException("Somehow a non-entity entity ended up on the volleyball court at game start in team 1!");
 		}
-		
+
 		// Reset position counter
 		pos = 0;
 
@@ -269,8 +269,8 @@ public class TileEntityGameManager extends TileEntity {
 			} else
 				throw new IllegalArgumentException("Somehow a non-entity entity ended up on the volleyball court at game startin team 2!");
 		}
-		
-	//	this.setGameState(GameStates.PRE_SERVE, false);
+
+		//	this.setGameState(GameStates.PRE_SERVE, false);
 
 		// If there are new ids in the list, sync the list
 		if (numPreActiveIDs < activeIDs.size()) {
@@ -476,6 +476,7 @@ public class TileEntityGameManager extends TileEntity {
 		team1Name = nbt.getString("Team1Name");
 		team2Name = nbt.getString("Team2Name");
 		isCourtBuilt = nbt.getBoolean("CourtBuilt");
+		teamServing = nbt.getByte("TeamServing");
 
 		int count = 0;
 		Iterator it = nbt.getCompoundTag("playerMapCompound").getTags().iterator();
@@ -485,19 +486,19 @@ public class TileEntityGameManager extends TileEntity {
 			NBTTagInt data = (NBTTagInt)it.next();
 			playerTeamMap.put(Integer.valueOf(data.getName()), data.data);
 		}
-		
+
 		count = 0;
 		it = nbt.getCompoundTag("team1PosCompound").getTags().iterator();
-		
+
 		while (it.hasNext()) {
 			count++;
 			NBTTagInt data = (NBTTagInt)it.next();
 			this.team1PositionMap.put(Integer.valueOf(data.getName()), data.data);
 		}
-		
+
 		count = 0;
 		it = nbt.getCompoundTag("team2PosCompound").getTags().iterator();
-		
+
 		while (it.hasNext()) {
 			count++;
 			NBTTagInt data = (NBTTagInt)it.next();
@@ -522,6 +523,7 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setString("Team1Name", team1Name);
 		nbt.setString("Team2Name", team2Name);
 		nbt.setBoolean("CourtBuilt", isCourtBuilt);
+		nbt.setByte("TeamServing", teamServing);
 
 		NBTTagCompound playerMapCompound = new NBTTagCompound();
 
@@ -536,9 +538,9 @@ public class TileEntityGameManager extends TileEntity {
 		}
 
 		nbt.setCompoundTag("playerMapCompound", playerMapCompound);
-		
-		
-		
+
+
+
 		NBTTagCompound team1MapCompound = new NBTTagCompound();
 
 		count = 0;
@@ -552,9 +554,9 @@ public class TileEntityGameManager extends TileEntity {
 		}
 
 		nbt.setCompoundTag("team1PosCompound", team1MapCompound);	
-		
-		
-		
+
+
+
 		NBTTagCompound team2MapCompound = new NBTTagCompound();
 
 		count = 0;
@@ -731,8 +733,8 @@ public class TileEntityGameManager extends TileEntity {
 		if (ball.getHitter() == null) {
 			return;
 		}
-		
-		
+
+
 		if (side == 1) {
 			this.team2Score++;
 			if (this.getTeam(ball.getHitter().entityId) == 1) {
@@ -802,7 +804,7 @@ public class TileEntityGameManager extends TileEntity {
 
 		return vball;
 	}
-	
+
 	public void rotateTeam(int team) {
 		rotateTeam(team == 1 ? (byte)1 : (byte)2);
 	}
@@ -823,12 +825,12 @@ public class TileEntityGameManager extends TileEntity {
 			if (team == 2) {
 				it = this.team2PositionMap.keySet().iterator();
 			}
-		
+
 		System.out.println("here 1");
 
 		if (it == null)
 			return;
-		
+
 		System.out.println("here 2");
 
 		while (it.hasNext()) {
@@ -846,9 +848,12 @@ public class TileEntityGameManager extends TileEntity {
 					System.out.printf("Value was %d, is now %d\n", value, team2PositionMap.get(id));
 				}
 		}
-		
+
 		System.out.println("here 3");
 		
+		// Reset the flag
+		this.rotateTeamFlag = -1;
+
 		this.sync();
 	}
 
@@ -861,17 +866,17 @@ public class TileEntityGameManager extends TileEntity {
 
 		// Player position
 		int pos = 0;
-		
+
 		while (players.hasNext()) {
 			Integer id = players.next();
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
 			//Vec3 spawnPos = getSpawnPosition(pos++, 1);
 			Vec3 spawnPos = getSpawnPosition(team1PositionMap.get(id), 1);
-			
+
 			if (spawnPos == null)
 				continue;
-			
+
 			movePlayer(ent, spawnPos, 1);
 		}
 
@@ -883,12 +888,12 @@ public class TileEntityGameManager extends TileEntity {
 			Integer id = players.next();
 			Entity ent = this.worldObj.getEntityByID(id.intValue());
 
-		//	Vec3 spawnPos = getSpawnPosition(pos++, 2);
+			//	Vec3 spawnPos = getSpawnPosition(pos++, 2);
 			Vec3 spawnPos = getSpawnPosition(team2PositionMap.get(id), 2);
-			
+
 			if (spawnPos == null)
 				continue;
-			
+
 			movePlayer(ent, spawnPos, 2);
 		}
 	}
@@ -901,7 +906,7 @@ public class TileEntityGameManager extends TileEntity {
 	 */
 	private void movePlayer(Entity player, Vec3 coords, int team) {
 		//TODO use team to determine which orientation to set player as
-		
+
 		if (player instanceof EntityPlayerMP) {
 			((EntityPlayerMP)player).playerNetServerHandler.setPlayerLocation(coords.xCoord, coords.yCoord + 1.0, coords.zCoord, player.rotationYaw, player.rotationPitch);
 		} else {		
@@ -935,22 +940,54 @@ public class TileEntityGameManager extends TileEntity {
 
 			if (ent instanceof EntityLivingBase) {
 				EntityLivingBase el = (EntityLivingBase)ent;
-		//		if (el.getCurrentItemOrArmor(0) == null || el.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID)
-			//		el.setCurrentItemOrArmor(0, getVolleyballItem());
+				//		if (el.getCurrentItemOrArmor(0) == null || el.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID)
+				//		el.setCurrentItemOrArmor(0, getVolleyballItem());
 			}
-
-			//if (isGameState(GameStates.PRE_SERVE)) {
-
-			//}
+		}
+		
+		//TODO Move if statements to switch statement if unpredictable behavior
+		
+		// Game hasn't started yet
+		if (isGameState(GameStates.PRE_GAME)) {
+			
+		}
+		
+		// If the game/round hasn't started yet
+		if (isGameState(GameStates.PRE_SERVE)) {
+			updatePlayerPositions();
+			
+			// TODO: Somehow give volleyball to server
+			
+			setGameState(GameStates.SERVING, true);
 		}
 
-		if (isGameState(GameStates.PRE_SERVE)) {
-		//	if (rotateTeamFlag != -1) {
-				System.err.println("here!");
-				//	rotateTeam(rotateTeamFlag);
-					updatePlayerPositions();
-					setGameState(GameStates.SERVING, true);
-		//	}
+		// Ball is being served
+		if (isGameState(GameStates.SERVING)) {
+			
+		}
+		
+		// Ball is in play
+		if (isGameState(GameStates.IN_GAME)) {
+			// Perform bounds checks to keep players in and others out here?
+		}
+		
+		// Ball has landed
+		if (isGameState(GameStates.END_ROUND)) {
+			
+			// If necessary, rotate a team
+			if (this.rotateTeamFlag != -1) {
+				this.rotateTeam(rotateTeamFlag);
+				this.updatePlayerPositions();
+			}
+			
+			//TODO send off redstone signal for scoring team?
+			
+			//TODO update scoreboard? This is probably done automagically
+		}
+		
+		// Game over
+		if (isGameState(GameStates.POST_GAME)) {
+			
 		}
 	}
 

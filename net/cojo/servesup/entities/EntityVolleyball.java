@@ -226,6 +226,9 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 							if (entity1.getDistanceToEntity(this) < triggerDist) {
 								BallPhysicsHelper.hitEvent(this, player, isServe);
+								
+								// Change the game state from "serving" to "in game"
+								setCourtState(GameStates.IN_GAME);
 							}
 						}
 					}
@@ -315,7 +318,6 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		boolean onGround2 = this.posY == MathHelper.floor_double(courtY);
 
 		if (onGround) {
-			//	System.out.println("hueoawueroauwoeriuawoerui");
 			int i = this.worldObj.getBlockId(this.xTile, this.yTile - 1, this.zTile);
 
 			if (i == this.inTile) {
@@ -356,6 +358,21 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 
 					court.onBallImpact(this);
 				}
+			}
+		}
+	}
+	
+	/**
+	 * Set the game state of the court tile entity
+	 * @param state Game state to set it to
+	 */
+	public void setCourtState(byte state) {
+		if (!worldObj.isRemote) {
+			TileEntity te = worldObj.getBlockTileEntity(courtX, courtY, courtZ);
+			if (te != null && te instanceof TileEntityGameManager) {
+				TileEntityGameManager court = (TileEntityGameManager)te;
+
+				court.setGameState(GameStates.IN_GAME, true);
 			}
 		}
 	}
