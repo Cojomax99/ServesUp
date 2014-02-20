@@ -31,7 +31,7 @@ public class SUCommands extends CommandBase {
 					
 					if (player.worldObj.getBlockTileEntity(x, y, z) instanceof TileEntityGameManager) {
 						TileEntityGameManager court = (TileEntityGameManager)player.worldObj.getBlockTileEntity(x, y, z);
-						court.rotateTeam(2);
+						court.rotateTeam(1);
 						court.updatePlayerPositions();
 						System.out.println("le rotation!");
 					} else {

@@ -52,7 +52,7 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 					}
 				}
 
-/*				for (int i = 0; i < court.team2.size(); i++) {
+				for (int i = 0; i < court.team2.size(); i++) {
 					Vec3 vecPl = court.getSpawnPosition(i, 2);
 
 					if (vecPl == null)
@@ -68,7 +68,7 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 						continue;
 
 					this.renderLivingLabel(court, "Player "  + i, vecPl.xCoord, vecPl.yCoord, vecPl.zCoord, 0xff0000);
-				}*/
+				}
 
 				//Overlays.renderLineFromToBlock(vecPl.xCoord, vecPl.yCoord, vecPl.zCoord, vecPl.xCoord, vecPl.yCoord+3, vecPl.zCoord, 0xFFFFFF);
 				//System.out.println(vecPl.xCoord + " " + vecPl.yCoord + " " + vecPl.zCoord);

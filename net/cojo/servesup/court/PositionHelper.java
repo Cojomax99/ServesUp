@@ -54,32 +54,32 @@ public class PositionHelper {
 
 		team = new ArrayList<Vec3>();
 		team.add(Vec3.createVectorHelper(0.75, 0, 0));
-		team.add(Vec3.createVectorHelper(0.25, 0, -0.5));
 		team.add(Vec3.createVectorHelper(0.25, 0, 0.5));
+		team.add(Vec3.createVectorHelper(0.25, 0, -0.5));
 		positionOffsetsMap.put(3, team);
 
 		team = new ArrayList<Vec3>();
 		team.add(Vec3.createVectorHelper(0.75, 0, -0.5));
 		team.add(Vec3.createVectorHelper(0.75, 0, 0.5));
-		team.add(Vec3.createVectorHelper(0.25, 0, -0.5));
 		team.add(Vec3.createVectorHelper(0.25, 0, 0.5));
+		team.add(Vec3.createVectorHelper(0.25, 0, -0.5));
 		positionOffsetsMap.put(4, team);
 
 		team = new ArrayList<Vec3>();
 		team.add(Vec3.createVectorHelper(0.75, 0, -0.5));
 		team.add(Vec3.createVectorHelper(0.75, 0, 0.5));
-		team.add(Vec3.createVectorHelper(0.25, 0, -0.67));
+		team.add(Vec3.createVectorHelper(0.25, 0, 0.67));		
 		team.add(Vec3.createVectorHelper(0.25, 0, 0));
-		team.add(Vec3.createVectorHelper(0.25, 0, 0.67));
+		team.add(Vec3.createVectorHelper(0.25, 0, -0.67));
 		positionOffsetsMap.put(5, team);
 
 		team = new ArrayList<Vec3>();
 		team.add(Vec3.createVectorHelper(0.75, 0, -0.67));
 		team.add(Vec3.createVectorHelper(0.75, 0, 0));
 		team.add(Vec3.createVectorHelper(0.75, 0, 0.67));
-		team.add(Vec3.createVectorHelper(0.25, 0, -0.67));
-		team.add(Vec3.createVectorHelper(0.25, 0, 0));
 		team.add(Vec3.createVectorHelper(0.25, 0, 0.67));
+		team.add(Vec3.createVectorHelper(0.25, 0, 0));
+		team.add(Vec3.createVectorHelper(0.25, 0, -0.67));
 		positionOffsetsMap.put(6, team);
 		
 		return positionOffsetsMap;
