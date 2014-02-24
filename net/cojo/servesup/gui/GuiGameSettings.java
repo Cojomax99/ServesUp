@@ -88,6 +88,7 @@ public class GuiGameSettings extends GuiScreen {
 				nbt.setString("Team2Name", tf_team2.getText().length() > 0 ? tf_team2.getText() : "Team 2");
 				nbt.setBoolean("CourtBuilt", Boolean.valueOf(true));
 				nbt.setByte("GameState", GameStates.PRE_SERVE);
+				nbt.setByte("TeamServing", (byte)1);
 				PacketHelper.sendClientPacket(PacketHelper.createPacketForTEntCommand(court, nbt));
 				System.out.println("Made it to send packet : D");
 				this.mc.thePlayer.closeScreen();

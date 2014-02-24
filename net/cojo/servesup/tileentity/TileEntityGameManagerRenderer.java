@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 
 import org.lwjgl.opengl.GL11;
 
@@ -73,7 +74,7 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 
 
 				if (court.team1Name != null) {
-					this.renderLivingLabel(court, String.format("Game State: %s", GameStates.stateName(court.gameState)), court.xCoord, court.yCoord, court.zCoord, 0xff00ff);
+					this.renderLivingLabel(court, String.format("Serving: Team %d ,Game State: %s", court.teamServing, GameStates.stateName(court.gameState)), court.xCoord, court.yCoord, court.zCoord, 0xff00ff);
 				}
 
 				GL11.glTranslated(court.xCoord + d0, court.yCoord + d1, court.zCoord + d2);

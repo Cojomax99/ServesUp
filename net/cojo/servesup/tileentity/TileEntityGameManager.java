@@ -46,8 +46,8 @@ public class TileEntityGameManager extends TileEntity {
 	 * 
 	 * 
 	 * 
-	 * 
-	 * 
+	 * Warp any players that try to troll and go on court -> bleacher seats
+	 * 2<27r4wk-work2> and any mobs that are added to the spec/bleachers make their attack target the ball so they follow it around with their head
 	 * 
 	 */
 
@@ -95,6 +95,9 @@ public class TileEntityGameManager extends TileEntity {
 
 	/** List of entity ids of players on team 1 */
 	public List<Integer> team2;
+	
+	/** List of entity ids of entities that are in the court safe bounds and shouldn't be */
+	public List<Integer> badGuys;
 
 	/** Map of entity id to team number */
 	public Map<Integer, Integer> playerTeamMap;
@@ -126,6 +129,7 @@ public class TileEntityGameManager extends TileEntity {
 		activeIDs = new ArrayList<Integer>();
 		team1 = new ArrayList<Integer>();
 		team2 = new ArrayList<Integer>();
+		badGuys = new ArrayList<Integer>();
 		playerTeamMap = new HashMap<Integer, Integer>();
 		positionCoordsMap = new HashMap<Integer, ChunkCoordinates>();
 		positionOffsetsMap = new HashMap<Integer, List<Vec3>>();
@@ -349,6 +353,13 @@ public class TileEntityGameManager extends TileEntity {
 	public AxisAlignedBB getCourtActualBounds() {		
 		return minX > Integer.MIN_VALUE ? AxisAlignedBB.getAABBPool().getAABB(minX, y(), minZ, maxX, y() + 4, maxZ) : null;
 	}
+	
+	/**
+	 * @return Gets an AABB for the bounds check of the court
+	 */
+	public AxisAlignedBB getCourtSafeBounds() {
+		return minX > Integer.MIN_VALUE ? AxisAlignedBB.getAABBPool().getAABB(minX - 2, y() - 2, minZ - 2, maxX + 2, y() + 6, maxZ + 2) : null;
+	}
 
 	/**
 	 * Simplification method for getting the height to render the lines at
@@ -468,6 +479,7 @@ public class TileEntityGameManager extends TileEntity {
 		activeIDs = getList(nbt.getIntArray("ActiveIDs"));
 		team1 = getList(nbt.getIntArray("Team1IDs"));
 		team2 = getList(nbt.getIntArray("Team2IDs"));
+		badGuys = getList(nbt.getIntArray("BadGuys"));
 		team1Score = nbt.getShort("Team1Score");
 		team2Score = nbt.getShort("Team2Score");
 		rotateTeamFlag = nbt.getByte("RotateTeamFlag");
@@ -514,6 +526,7 @@ public class TileEntityGameManager extends TileEntity {
 		nbt.setIntArray("ActiveIDs", Ints.toArray(activeIDs));
 		nbt.setIntArray("Team1IDs", Ints.toArray(team1));
 		nbt.setIntArray("Team2IDs", Ints.toArray(team2));
+		nbt.setIntArray("BadGuys", Ints.toArray(badGuys));
 		nbt.setByte("GameState", gameState);
 		nbt.setShort("Team1Score", team1Score);
 		nbt.setShort("Team2Score", team2Score);
@@ -722,12 +735,13 @@ public class TileEntityGameManager extends TileEntity {
 		this.onScore(side, ball, false);
 
 		// Update the game state to PRE_SERVE, effectively preparing for next round, DO sync
-		this.updateGameState(GameStates.PRE_SERVE, false);
+		this.updateGameState(GameStates.PRE_SERVE, true);
 	}
 
 	/**
 	 * Update the game score
 	 * @param side Side of the court the ball landed on
+	 * @param shouldSync Should this method sync?
 	 */
 	public void onScore(int side, EntityVolleyball ball, boolean shouldSync) {
 		if (ball.getHitter() == null) {
@@ -738,13 +752,15 @@ public class TileEntityGameManager extends TileEntity {
 		if (side == 1) {
 			this.team2Score++;
 			if (this.getTeam(ball.getHitter().entityId) == 1) {
-				updateRotateFlag((byte)2, false);
+				updateRotateFlag((byte)2, shouldSync);
+				this.teamServing = 2;
 			}
 		} else
 			if (side == 2) {
 				this.team1Score++;
 				if (this.getTeam(ball.getHitter().entityId) == 2) {
-					updateRotateFlag((byte)1, false);
+					updateRotateFlag((byte)1, shouldSync);
+					this.teamServing = 1;
 				}
 			} else {
 				if (this.getTeam(ball.getHitter().entityId) == 1) {
@@ -969,6 +985,21 @@ public class TileEntityGameManager extends TileEntity {
 		// Ball is in play
 		if (isGameState(GameStates.IN_GAME)) {
 			// Perform bounds checks to keep players in and others out here?
+			List allEntitiesInBounds = this.worldObj.getEntitiesWithinAABB(Entity.class, this.getCourtSafeBounds());
+			
+			for (Object o : allEntitiesInBounds) {
+				// Since I am not using a set, this check is necessary to prevent dupes
+				if (!badGuys.contains(o))
+					badGuys.add(((Entity)o).entityId);
+			}
+			
+			badGuys.removeAll(activeIDs);
+			
+			//TODO move players to bleachers
+			for (Integer i : badGuys) {
+				Entity e = worldObj.getEntityByID(i.intValue());
+				e.setLocationAndAngles(minX, this.y(), minZ, 0, 0);
+			}
 		}
 		
 		// Ball has landed
