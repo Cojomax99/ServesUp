@@ -821,6 +821,10 @@ public class TileEntityGameManager extends TileEntity {
 		return vball;
 	}
 
+	/**
+	 * Helper method for rotating a team
+	 * @param team Team to rotate
+	 */
 	public void rotateTeam(int team) {
 		rotateTeam(team == 1 ? (byte)1 : (byte)2);
 	}
@@ -842,16 +846,16 @@ public class TileEntityGameManager extends TileEntity {
 				it = this.team2PositionMap.keySet().iterator();
 			}
 
-		System.out.println("here 1");
+	//	System.out.println("here 1");
 
 		if (it == null)
 			return;
 
-		System.out.println("here 2");
+	//	System.out.println("here 2");
 
 		while (it.hasNext()) {
 			Integer id = it.next();
-			System.out.println("here 4");
+	//		System.out.println("here 4");
 
 			if (team == 1) {
 				int value = this.team1PositionMap.get(id);
@@ -865,7 +869,7 @@ public class TileEntityGameManager extends TileEntity {
 				}
 		}
 
-		System.out.println("here 3");
+	//	System.out.println("here 3");
 		
 		// Reset the flag
 		this.rotateTeamFlag = -1;
@@ -941,7 +945,33 @@ public class TileEntityGameManager extends TileEntity {
 		if (sync)
 			sync();
 	}
-
+	
+	/**
+	 * Get the entity who is currently serving
+	 * @return The current server
+	 */
+	private EntityLivingBase getServer() {
+		Entity server = null;
+		
+		List<Integer> teamIDs = teamServing == 1 ? team1 : team2;
+		Iterator<Integer> players = teamIDs.iterator();
+		Map<Integer, Integer> posMap = teamServing == 1 ? team1PositionMap : team2PositionMap;
+		
+		while (players.hasNext()) {
+			Integer id = players.next();
+			server = this.worldObj.getEntityByID(id.intValue());
+			
+			if (posMap.get(id) == 0) {
+				break;
+			}
+		}
+		
+		if (server instanceof EntityLivingBase)
+			return (EntityLivingBase)server;
+		else
+			return null;
+	}
+	
 	/**
 	 * Runs the game loop
 	 */
@@ -972,7 +1002,12 @@ public class TileEntityGameManager extends TileEntity {
 		if (isGameState(GameStates.PRE_SERVE)) {
 			updatePlayerPositions();
 			
-			// TODO: Somehow give volleyball to server
+			EntityLivingBase server = getServer();
+			
+			// Give volleyball to server
+			if (server.getCurrentItemOrArmor(0) == null || server.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID) {
+				server.setCurrentItemOrArmor(0, getVolleyballItem());
+			}
 			
 			setGameState(GameStates.SERVING, true);
 		}
@@ -985,21 +1020,21 @@ public class TileEntityGameManager extends TileEntity {
 		// Ball is in play
 		if (isGameState(GameStates.IN_GAME)) {
 			// Perform bounds checks to keep players in and others out here?
-			List allEntitiesInBounds = this.worldObj.getEntitiesWithinAABB(Entity.class, this.getCourtSafeBounds());
+		//	List allEntitiesInBounds = this.worldObj.getEntitiesWithinAABB(Entity.class, this.getCourtSafeBounds());
 			
-			for (Object o : allEntitiesInBounds) {
+	/*		for (Object o : allEntitiesInBounds) {
 				// Since I am not using a set, this check is necessary to prevent dupes
 				if (!badGuys.contains(o))
 					badGuys.add(((Entity)o).entityId);
 			}
 			
-			badGuys.removeAll(activeIDs);
+			badGuys.removeAll(activeIDs);*/
 			
 			//TODO move players to bleachers
-			for (Integer i : badGuys) {
+/*			for (Integer i : badGuys) {
 				Entity e = worldObj.getEntityByID(i.intValue());
 				e.setLocationAndAngles(minX, this.y(), minZ, 0, 0);
-			}
+			}*/
 		}
 		
 		// Ball has landed

@@ -1,0 +1,8 @@
+TO DO:
+- Make players rotate upon other team scoring
+- Scoreboard
+- Redstone signals
+- Prevent outside from getting in
+
+DONE:
+- 
