@@ -75,6 +75,7 @@ public class TileEntityGameManagerRenderer extends TileEntitySpecialRenderer {
 
 				if (court.team1Name != null) {
 					this.renderLivingLabel(court, String.format("Serving: Team %d ,Game State: %s", court.teamServing, GameStates.stateName(court.gameState)), court.xCoord, court.yCoord, court.zCoord, 0xff00ff);
+					this.renderLivingLabel(court, String.format("Score: Team 1: %d    Team 2: %d", court.team1Score, court.team2Score), court.xCoord, court.yCoord + 1, court.zCoord, 0xff00ff);
 				}
 
 				GL11.glTranslated(court.xCoord + d0, court.yCoord + d1, court.zCoord + d2);

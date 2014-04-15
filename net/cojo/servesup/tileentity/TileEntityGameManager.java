@@ -90,10 +90,10 @@ public class TileEntityGameManager extends TileEntity {
 	/** List of entity ids of active players */
 	public List<Integer> activeIDs;
 
-	/** List of entity ids of players on team 2 */
+	/** List of entity ids of players on team 1 */
 	public List<Integer> team1;
 
-	/** List of entity ids of players on team 1 */
+	/** List of entity ids of players on team 2 */
 	public List<Integer> team2;
 	
 	/** List of entity ids of entities that are in the court safe bounds and shouldn't be */
@@ -1005,7 +1005,7 @@ public class TileEntityGameManager extends TileEntity {
 			EntityLivingBase server = getServer();
 			
 			// Give volleyball to server
-			if (server.getCurrentItemOrArmor(0) == null || server.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID) {
+			if (server != null && (server.getCurrentItemOrArmor(0) == null || server.getCurrentItemOrArmor(0).getItem().itemID != SUItems.volleyball.itemID)) {
 				server.setCurrentItemOrArmor(0, getVolleyballItem());
 			}
 			

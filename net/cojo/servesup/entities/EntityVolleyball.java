@@ -26,6 +26,15 @@ import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
 
 public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnData, IProjectile {
 
+	/** Maximum number of hits one team can have in a row before a point is given to the other team */
+	public static final int MAX_SUCCESSIVE_HITS = 3;
+	
+	/** Current number of successive hits by one team */
+	public int hitCount;
+	
+	/** Which team last hit the ball? */
+	public int lastHitTeam;
+	
 	/** Player who hit the volleyball */
 	public EntityLivingBase hitter;
 
@@ -59,11 +68,13 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		this.courtX = courtX;
 		this.courtY = courtY;
 		this.courtZ = courtZ;
+		this.hitCount = 0;
 	}
 
 	public EntityVolleyball(World world) {
 		super(world);
 		this.setSize(0.25F, 0.25F);
+		this.hitCount = 0;
 	}
 
 	@Override
@@ -109,6 +120,9 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		this.courtX = nbttagcompound.getInteger("courtX");
 		this.courtY = nbttagcompound.getInteger("courtY");
 		this.courtZ = nbttagcompound.getInteger("courtZ");
+		
+		this.hitCount = nbttagcompound.getInteger("hitCount");
+		this.lastHitTeam = nbttagcompound.getInteger("lastHitTeam");
 	}
 
 	@Override
@@ -121,6 +135,8 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 		nbttagcompound.setInteger("courtX", courtX);
 		nbttagcompound.setInteger("courtY", courtY);
 		nbttagcompound.setInteger("courtZ", courtZ);
+		nbttagcompound.setInteger("hitCount", hitCount);
+		nbttagcompound.setInteger("lastHitTeam", lastHitTeam);
 	}
 
 	@Override
@@ -224,8 +240,10 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 						if (player.swingProgress > 0.2F) {
 							double speed = Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
 
+							// Player hits the ball!
 							if (entity1.getDistanceToEntity(this) < triggerDist) {
 								BallPhysicsHelper.hitEvent(this, player, isServe);
+								this.updateHitCount(player);
 								
 								// Change the game state from "serving" to "in game"
 								setCourtState(GameStates.IN_GAME);
@@ -357,6 +375,38 @@ public class EntityVolleyball extends Entity implements IEntityAdditionalSpawnDa
 					TileEntityGameManager court = (TileEntityGameManager)te;
 
 					court.onBallImpact(this);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Update the hit count and last team hit variables<br />
+	 * Essentially manages the rules regarding which team last hit the ball
+	 * And to make sure a team does not exceed 3 hits on the ball
+	 * @param hitter Player who last hit the ball
+	 */
+	public void updateHitCount(EntityLivingBase hitter) {
+		if (!worldObj.isRemote) {
+			TileEntity te = worldObj.getBlockTileEntity(courtX, courtY, courtZ);
+			if (te != null && te instanceof TileEntityGameManager) {
+				TileEntityGameManager court = (TileEntityGameManager)te;
+
+				// Get the team that just hit the ball
+				int currentHitTeam = court.team1.contains(hitter.entityId) ? 1 : 2;
+				
+				// If it was the same team that last hit it, increment the hit counter
+				// Otherwise set it to 0 and change the team
+				if (this.lastHitTeam == currentHitTeam) {
+					this.hitCount++;
+				} else {
+					this.hitCount = 0;
+					this.lastHitTeam = currentHitTeam;
+				}
+				
+				if (hitCount >= 3) {
+					court.onScore(currentHitTeam, this, true);
+					court.rotateTeam(currentHitTeam == 1 ? 2 : 1);
 				}
 			}
 		}
